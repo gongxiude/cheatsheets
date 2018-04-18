@@ -3,7 +3,7 @@ title: ansible
 category: ansible
 layout: 2017/sheet
 ---
-
+{% raw %}
 
 [http://www.ansible.cn](http://www.ansible.cn)ansible模块 [http://docs.ansible.com/modules.html](http://docs.ansible.com/modules.html)playbook [http://docs.ansible.com/\#playbooks](http://docs.ansible.com/#playbooks)playbook示例 [https://github.com/ansible/ansible-examples](https://github.com/ansible/ansible-examples)
 
@@ -263,3 +263,5 @@ ruby_module_host ansible_ruby_interpreter=/usr/bin/ruby.1.9.3
 ```
 
 
+
+{% endraw %}
