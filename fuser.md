@@ -6,6 +6,8 @@ intro: |
   fuser命令行格式为：fuser(选项)(参数)  
 ---
 
+
+
 ## fuser
 
 ### 常用选项
@@ -23,9 +25,9 @@ intro: |
 |-u |在每个进程后显示所属的用户名|
 
 
-## 示例
+### 示例
 
-### 使用fuser来查文件或目录被谁占用
+#### 使用fuser来查文件或目录被谁占用
 
 ```bash
 $ fuser /proc  
@@ -34,14 +36,14 @@ $ fuser /proc
 参数：-v 显示用多信息，-u 显示用户
 
 
-### 参数：-v 显示用多信息，-u 显示用户
+#### 参数：-v 显示用多信息，-u 显示用户
 
 ```bash
 $ fuser -uv /proc  
                      用户     进程号 权限   命令  
 /proc:               rtkit      2454 .rc.. (rtkit)rtkit-daemon  
 ```
-### 想要显示/proc目录下所有文件和目录被占用情况，加-m参数
+#### 想要显示/proc目录下所有文件和目录被占用情况，加-m参数
 
 ```bash
 $ fuser -uvm /proc  
@@ -57,7 +59,7 @@ $ fuser -uvm /proc
                      root       2712 f.... (root)gnome-power-man  
 ```
 
-### 使用删除某个PID，加-k参数，加入-i,配合-k会询问用户意愿
+#### 使用删除某个PID，加-k参数，加入-i,配合-k会询问用户意愿
 
 
 ```bash
