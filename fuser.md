@@ -66,16 +66,4 @@ $ fuser -ki /proc
 杀死进程 2454 ? (y/N) n 
 ```
 
-### 插入
-
-在文件ab中最后一行直接输入"bye"
-
-```bash
-[root@localhost ruby] # sed -i '$a bye' ab         
-[root@localhost ruby]# cat ab
-Hello!
-ruby is me,welcome to my blog.
-end
-bye
-```
 
