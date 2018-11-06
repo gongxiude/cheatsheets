@@ -10,7 +10,7 @@ category: Kubernetes
 
 ## Kubernetes traefik
 
-{: .-three-column}
+{: .-one-column}
 
 ### **容器健康监测**
 
@@ -21,7 +21,8 @@ kubernetes提供了 liveness probes来检查我们的应用程序。它是由节
 - Liveness Probe：表示container是否处于live状态。如果 LivenessProbe失败，LivenessProbe将会通知kubelet对应的container不健康了。随后kubelet将kill掉 container，并根据RestarPolicy进行进一步的操作。默认情况下LivenessProbe在第一次检测之前初始化值为 Success，如果container没有提供LivenessProbe，则也认为是Success；
 - ReadinessProbe：表示container是否以及处于可接受service请求的状态了。如果ReadinessProbe失败，endpoints controller将会从service所匹配到的endpoint列表中移除关于这个container的IP地址。因此对于Service匹配到的 endpoint的维护其核心是ReadinessProbe。默认Readiness的初始值是Failure，如果一个container没有提供 Readiness则被认为是Success。
 
-### **Pod的整个生命阶段**
+{: .-one-column}
+## **Pod的整个生命阶段**
 
 - Pending：表示集群系统正在创建Pod，但是Pod中的container还没有全部被创建，这其中也包含集群为container创建网络，或者下载镜像的时间；
 - Running：表示pod已经运行在一个节点上，并且所有的container都已经被创建。但是并不代表所有的container都运行，它仅仅代表至少有一个container是处于运行的状态或者进程出于启动中或者重启中；
@@ -55,9 +56,7 @@ Liveness Probe的种类：
 
  
 
-
-
-### 以traefik daemeset为例进行说明
+以traefik daemeset为例进行说明
 
 ```yaml
 readinessProbe:
@@ -85,6 +84,8 @@ livenessProbe:
 >
 > 和上面解释基本相同，唯一不同认为失败一次认定改容器不能对外提供服务， 从service中删除
 
+
+## 示例
 ### 完整示例
 ```yaml
 apiVersion: extensions/v1beta1
