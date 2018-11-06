@@ -23,6 +23,9 @@ updated: 2017-09-20
 -I           # --head: headers only
 ```
 
+```bash 
+-L           # 链接跟踪，如301或者302
+```
 ### Request
 
 ```bash
