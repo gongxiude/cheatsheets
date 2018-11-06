@@ -7,7 +7,7 @@ tags: [Featured]
 updated: 2017-11-19
 category: Kubernetes
 ---
-
+{: .-there-column}
 ## Kubernetes traefik
 
 # K8s Ingress基本概念
@@ -66,9 +66,8 @@ Ingress Controller 收到请求，匹配 Ingress 转发规则，匹配到了就�
 - 使用集群内部的某个或某些节点作为边缘节点，给 node 添加 label 来标识，Ingress Controller 用 DaemonSet 方式部署，使用 nodeSelector 绑定到边缘节点，保证每个边缘节点启动一个 Ingress Controller 实例，用 hostPort 直接在这些边缘节点宿主机暴露端口，然后我们可以访问边缘节点中 Ingress Controller 暴露的端口，这样外部就可以访问到 Ingress Controller 了
 - Ingress Controller 用 Deployment 方式部署，给它添加一个 Service，类型为 NodePort，部署完成后查看会给出一个端口，通过 kubectl get svc 我们可以查看到这个端口，这个端口在集群的每个节点都可以访问，通过访问集群节点的这个端口就可以访问 Ingress Controller 了
 
-
+{: .-there-column}
 #  示例
-
 #### [x] Traffik 多https证书支持, 
 后期配置tls证书， 此证书只允许具有相同namespace ingress使用
 
