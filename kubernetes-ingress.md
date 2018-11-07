@@ -7,12 +7,12 @@ tags: [Featured]
 updated: 2017-11-19
 category: Kubernetes
 ---
-{: .-there-column}
-## Kubernetes traefik
 
+## Kubernetes traefik
+{: .-one-column}
 # K8s Ingress基本概念
 
-​ [Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) & [Service](https://kubernetes.io/docs/concepts/services-networking/service/) 都会各自拥有一个 IP address 供读取，但这些 IP 仅在 K8s cluster 內部才有办法读取的到，但若要在 K8s cluster 上提供对外服务呢?
+​[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) & [Service](https://kubernetes.io/docs/concepts/services-networking/service/) 都会各自拥有一个 IP address 供读取，但这些 IP 仅在 K8s cluster 內部才有办法读取的到，但若要在 K8s cluster 上提供对外服务呢?
 
 而目前可以外部存取 K8s 上服务的方式主要有三种：
 
@@ -50,7 +50,7 @@ Ingress 可以负责以下工作：
 - rewrite 规则
 - ssl
 
-## Service、Ingress与Ingress Controller的作用与关系
+### Service、Ingress与Ingress Controller的作用与关系
 
 - Service 是后端真实服务的抽象，一个 Service 可以代表多个相同的后端服务
 - Ingress 是反向代理规则，用来规定 HTTP/S 请求应该被转发到哪个 Service 上，比如根据请求中不同的 Host 和 url 路径让请求落到不同的 Service 上
@@ -60,14 +60,14 @@ Ingress 可以负责以下工作：
 Ingress Controller 收到请求，匹配 Ingress 转发规则，匹配到了就转发到后端 Service，而 Service 可能代表的后端 Pod 有多个，选出一个转发到那个 Pod，最终由那个 Pod 处理请求。
 
 
-## ingress 的暴漏方式
+### ingress 的暴漏方式
 
 - Ingress Controller 用 Deployment 方式部署，给它添加一个 Service，类型为 LoadBalancer，这样会自动生成一个 IP 地址，通过这个 IP 就能访问到了，并且一般这个 IP 是高可用的（前提是集群支持 LoadBalancer，通常云服务提供商才支持，自建集群一般没有）
 - 使用集群内部的某个或某些节点作为边缘节点，给 node 添加 label 来标识，Ingress Controller 用 DaemonSet 方式部署，使用 nodeSelector 绑定到边缘节点，保证每个边缘节点启动一个 Ingress Controller 实例，用 hostPort 直接在这些边缘节点宿主机暴露端口，然后我们可以访问边缘节点中 Ingress Controller 暴露的端口，这样外部就可以访问到 Ingress Controller 了
 - Ingress Controller 用 Deployment 方式部署，给它添加一个 Service，类型为 NodePort，部署完成后查看会给出一个端口，通过 kubectl get svc 我们可以查看到这个端口，这个端口在集群的每个节点都可以访问，通过访问集群节点的这个端口就可以访问 Ingress Controller 了
 
 {: .-there-column}
-#  示例
+##  示例
 
 ### Traffik 多https证书支持, 
 后期配置tls证书， 此证书只允许具有相同namespace ingress使用
