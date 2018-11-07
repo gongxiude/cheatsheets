@@ -28,13 +28,13 @@ category: Kubernetes
 [ Services ]
 ```
 
-> 但在原有的模式下，如果是在公有云 使用 K8s 的话，还可以搭配 LoadBalancer 的 service type 动态取得 LB 对外提供服务；但如果是自己架设 K8s，那就只能透过 Service NodePort 的方式让使用者从外部访问运行在 K8s 上的服务。
+但在原有的模式下，如果是在公有云 使用 K8s 的话，还可以搭配 LoadBalancer 的 service type 动态取得 LB 对外提供服务；但如果是自己架设 K8s，那就只能透过 Service NodePort 的方式让使用者从外部访问运行在 K8s 上的服务。
 
 Ingress 就是集群内所有服务的入口，rule 的集合，让外面进來的网路流量可以正确的被导到后方的 Service，架构如下图：
 
 ```
-internet
-  |
+  internet
+     |
 [ Ingress ]
 --|-----|--
 [ Services ]
@@ -97,10 +97,9 @@ kubectl -n kube-system create secret tls traefik-ui-tls-cert --key=tls.key --cer
 ```
 ### 定义后端的分发策略
 
->  这里支持多种负载均衡方法：
->
->  - `wrr`: 加权轮询
->  - `drr`: 动态轮询: 这会为表现比其他服务器好的服务器增加权重。当服务器表现有变化的时，它也会会退到正常权重。
+这里支持多种负载均衡方法：
+- `wrr`: 加权轮询
+- `drr`: 动态轮询: 这会为表现比其他服务器好的服务器增加权重。当服务器表现有变化的时，它也会会退到正常权重。
 
 定义在service 资源中， 不能定义在ingress资源中
 
