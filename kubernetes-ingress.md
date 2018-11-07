@@ -8,7 +8,6 @@ updated: 2017-11-19
 category: Kubernetes
 ---
 
-## Kubernetes traefik
 {: .-one-column}
 ## K8s Ingress基本概念
 
