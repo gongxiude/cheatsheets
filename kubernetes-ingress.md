@@ -202,7 +202,7 @@ http:
 ```
 
 
-#### **rewrite 相关实现**
+### **rewrite 相关实现**
 
 > rewrite 实现使用`traefik.ingress.kubernetes.io/rewrite-target `annotations , 具体实现如下， 实现的效果为 `/api/(.*)` 转发为`/api/$1` 其中`(.*)`和 `$1`为自动添加， 不支持绝对的路径匹配（如访问／api）会提示404
 
