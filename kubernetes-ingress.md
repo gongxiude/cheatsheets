@@ -10,7 +10,7 @@ category: Kubernetes
 
 ## Kubernetes traefik
 {: .-one-column}
-# K8s Ingress基本概念
+## K8s Ingress基本概念
 
 ​[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) & [Service](https://kubernetes.io/docs/concepts/services-networking/service/) 都会各自拥有一个 IP address 供读取，但这些 IP 仅在 K8s cluster 內部才有办法读取的到，但若要在 K8s cluster 上提供对外服务呢?
 
@@ -50,8 +50,8 @@ Ingress 可以负责以下工作：
 - rewrite 规则
 - ssl
 
-### Service、Ingress与Ingress Controller的作用与关系
-
+## Service、Ingress与Ingress Controller的作用与关系
+{: .-one-column}
 - Service 是后端真实服务的抽象，一个 Service 可以代表多个相同的后端服务
 - Ingress 是反向代理规则，用来规定 HTTP/S 请求应该被转发到哪个 Service 上，比如根据请求中不同的 Host 和 url 路径让请求落到不同的 Service 上
 - Ingress Controller 就是一个反向代理程序，它负责解析 Ingress 的反向代理规则，如果 Ingress 有增删改的变动，所有的 Ingress Controller 都会及时更新自己相应的转发规则，当 Ingress Controller 收到请求后就会根据这些规则将请求转发到对应的 Service。
@@ -59,8 +59,8 @@ Ingress 可以负责以下工作：
 请求流程： 
 Ingress Controller 收到请求，匹配 Ingress 转发规则，匹配到了就转发到后端 Service，而 Service 可能代表的后端 Pod 有多个，选出一个转发到那个 Pod，最终由那个 Pod 处理请求。
 
-
-### ingress 的暴漏方式
+{: .-one-column}
+## ingress 的暴漏方式
 
 - Ingress Controller 用 Deployment 方式部署，给它添加一个 Service，类型为 LoadBalancer，这样会自动生成一个 IP 地址，通过这个 IP 就能访问到了，并且一般这个 IP 是高可用的（前提是集群支持 LoadBalancer，通常云服务提供商才支持，自建集群一般没有）
 - 使用集群内部的某个或某些节点作为边缘节点，给 node 添加 label 来标识，Ingress Controller 用 DaemonSet 方式部署，使用 nodeSelector 绑定到边缘节点，保证每个边缘节点启动一个 Ingress Controller 实例，用 hostPort 直接在这些边缘节点宿主机暴露端口，然后我们可以访问边缘节点中 Ingress Controller 暴露的端口，这样外部就可以访问到 Ingress Controller 了
@@ -239,45 +239,45 @@ spec:
 
 - `/api/a`转发为`/a` 删除路径前缀
 
-  > 使用`traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip` annotations
-  >
-  > 或者使用`traefik.ingress.kubernetes.io/rewrite-target` annotations， 但是不支持路径本身
-  >
-  > 或者使用`traefik.ingress.kubernetes.io/request-modifier: AddPrefix: /api`, path只监听`/a`， 路由规则为`PathPrefixStrip /api`
+> 使用`traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip` annotations
+>
+> 或者使用`traefik.ingress.kubernetes.io/rewrite-target` annotations， 但是不支持路径本身
+>
+> 或者使用`traefik.ingress.kubernetes.io/request-modifier: AddPrefix: /api`, path只监听`/a`， 路由规则为`PathPrefixStrip /api`
 
-  ```yaml
-  apiVersion: extensions/v1beta1
-  kind: Ingress
-  metadata:
-    name: nginx09
-    namespace: default
-    labels: 
-      traffic-type: internal
-    annotations:
-      traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
-  spec:
-    rules:
-    - host: ngx09.gxd88.cn
-      http:
-        paths:
-        - path: /api 
-          backend:
-            serviceName: nginx
-            servicePort: 80
-  ```
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx09
+  namespace: default
+  labels: 
+    traffic-type: internal
+  annotations:
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+spec:
+  rules:
+  - host: ngx09.gxd88.cn
+    http:
+      paths:
+      - path: /api 
+        backend:
+          serviceName: nginx
+          servicePort: 80
+```
 
-  > 请求方法 
-  >
-  > ```bash
-  > curl -H "Host: ngx09.gxd88.cn" http://internal/api/asd
-  > ```
-  >
-  > 请求到后端为
-  >
-  > ```bash
-  > http://backend/asd
-  > ```
-  > 最终实现当前域名下的所有请求都会去掉/api
+> 请求方法 
+>
+> ```bash
+> curl -H "Host: ngx09.gxd88.cn" http://internal/api/asd
+> ```
+>
+> 请求到后端为
+>
+> ```bash
+> http://backend/asd
+> ```
+> 最终实现当前域名下的所有请求都会去掉/api
 
 
 
