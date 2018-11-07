@@ -6,7 +6,7 @@ updated: 2017-09-20
 ---
 
 ## Command
-
+{: .-one-column}
 ### Command 
 {: .-one-column}
 
@@ -22,6 +22,10 @@ sar -n DEV 1
 sar -n TCP,ETCP 1
 top
 ```
+
+## options
+{: .-two-column}
+
 ### uptime 
 ```bash
 $ uptime
@@ -139,7 +143,7 @@ buffers: buffer cache,用于块设备I/O。 cached:page cache, 用于文件系�
 Linux可以将空闲内存用于缓存，并且在应用程序需要的时候收回。所以应用到缓存的内存必须以另一种方式包括在内存空闲的数据里面。有一个网站linux ate my ram,专门探讨这个困惑。它还有更令人困惑的地方，如果在Linux上使用ZFS,正如我们运行一些服务，ZFS拥有自己的文件系统缓存，也不能在free -m 的输出里正确反映。这种情况会显示系统空闲内存不足，但是内存实际上可用，通过回收 ZFS 的缓存。
 关于 Linux 内存管理的更多内容，可以阅读操作系统原理：How Linux Works (Memroy)。
 
-## sar n DEV 1
+### sar n DEV 1
 
 ```bash
 $ sar -n DEV 1
