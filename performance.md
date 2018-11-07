@@ -8,7 +8,6 @@ updated: 2017-09-20
 ## Command
 {: .-one-column}
 ### Command 
-{: .-one-column}
 
 ```bash
 uptime
