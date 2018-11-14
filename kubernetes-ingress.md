@@ -67,7 +67,7 @@ Ingress Controller 收到请求，匹配 Ingress 转发规则，匹配到了就�
 {: .-there-column}
 ##  示例
 
-### Traffik 多https证书支持, 
+### **Traffik 多https证书支持**
 后期配置tls证书， 此证书只允许具有相同namespace ingress使用
 
 ```yaml
@@ -94,7 +94,7 @@ spec:
 ```
 kubectl -n kube-system create secret tls traefik-ui-tls-cert --key=tls.key --cert=tls.crt
 ```
-### 定义后端的分发策略
+### **定义后端的分发策略**
 
 这里支持多种负载均衡方法：
 - `wrr`: 加权轮询
@@ -118,7 +118,7 @@ app: nginx
   targetPort: 80
 ```
 
-### session 粘滞
+### **session 粘滞**
 
 > 所有的负载平衡器都支持粘滞会话(sticky sessions)。当粘滞会话被开启时，会有一个名称叫做`_TRAEFIK_BACKEND`的cookie在请求被初始化时被设置在请求初始化时。在随后的请求中，客户端会被直接转发到这个cookie中存储的后端（当然它要是健康可用的），如果这个后端不可用，将会指定一个新的后端。
 >
@@ -165,7 +165,7 @@ app: nginx
 
 
 
-###  自定义日志格式, 添加字段
+###  **自定义日志格式, 添加字段**
 
 > https://docs.traefik.io/configuration/logs/ 
 >
@@ -288,9 +288,9 @@ metadata:
   name: nginx05
   namespace: default
   labels: 
-traffic-type: internal
+    traffic-type: internal
   annotations:
-traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   rules:
   - host: ngx05.gxd88.cn
@@ -330,3 +330,261 @@ spec:
           serviceName: wensleydale
           servicePort: http
 ```
+
+### **基于用户名和密码的认证**
+
+
+- ##### 创建Secret
+
+  ```bash
+  htpasswd -c ./auth myusername
+  ```
+
+- 查看创建文件的内容， 其中密码部分MD5加密
+
+    ```bash
+    cat auth
+    myusername:$apr1$78Jyn/1K$ERHKVRPPlzAX8eBtLuvRZ0
+    ```
+
+- 根据创建好的secret文件， 使用kubectl 创建secret
+
+    ```bash
+    kubectl create secret generic mysecret --from-file auth --namespace=default
+    ```
+
+示例
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+name: nginx02
+namespace: default
+annotations:
+  kubernetes.io/ingress.class: traefik-external
+  ingress.kubernetes.io/auth-type: basic
+  ingress.kubernetes.io/auth-secret: mysecret
+spec:
+rules:
+  - host: ngx02.gxd88.cn
+    http:
+      paths:
+      - backend:
+          serviceName: nginx
+          servicePort: 80
+```
+
+
+### **traefik 基于IP的白名单配置**
+
+#### **remote_addr** 的相关配置
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx03
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+    traefik.ingress.kubernetes.io/whitelist-source-range: "10.40.0.227"
+spec:
+  rules:
+  - host: ngx03.gxd88.cn
+    http:
+      paths:
+      - backend:
+          serviceName: nginx
+          servicePort: 80
+```
+> 如上文件创建ingress后改站点只允许`10.40.0.227`该IP地址访问， 也支持`192.168.0.1/24`网段的配置， 多个实用逗号分隔
+
+
+##### **X-Forwarded-For**
+    
+需要添加`ingress.kubernetes.io/whitelist-x-forwarded-for: "true"` 
+
+配置如下：
+
+```yaml
+annotations:
+  kubernetes.io/ingress.class: traefik-external
+  traefik.ingress.kubernetes.io/whitelist-source-range: "10.40.0.227"
+  ingress.kubernetes.io/whitelist-x-forwarded-for: "true"
+```
+
+- 也可以修改对应的traefik 配置文件方式实现​
+
+```bash
+      [entryPoints]
+        [entryPoints.http]
+          address = ":80"
+      
+          [entryPoints.http.whiteList]
+            sourceRange = ["127.0.0.1/32", "192.168.1.7"]
+            useXForwardedFor = true
+```
+
+  
+
+### **域名跳转 **
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx06
+  namespace: default
+  labels: 
+traffic-type: internal
+  annotations:
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/redirect-regex: ^http://ngx06.gxd88.cn/api/(.*)
+    traefik.ingress.kubernetes.io/redirect-replacement: http://ngx04.gxd88.cn/$1	
+spec:
+  rules:
+  - host: ngx06.gxd88.cn
+http:
+  paths:
+  - path: /api
+backend:
+  serviceName: nginx
+  servicePort: 80
+
+```
+
+> 域名跳转必须配置如下annotations
+
+```yaml
+annotations: 
+  traefik.ingress.kubernetes.io/redirect-permanent: "true"  
+  traefik.ingress.kubernetes.io/redirect-regex: ^http://ngx06.gxd88.cn/api/(.*)traefik.ingress.kubernetes.io/redirect-replacement: http://ngx04.gxd88.cn/$1	
+```
+
+访问http://ngx06.gxd88.cn/api/a的请求会`301`跳转到http://ngx04.gxd88.cn/a
+>
+> ```bash
+> ➜  ~ curl -L  -H  "Host: ngx06.gxd88.cn"  http://internal/api/stilton  -v
+> *   Trying 10.40.58.154...
+> * TCP_NODELAY set
+> * Connected to 10.40.58.154 (10.40.58.154) port 80 (#0)
+> > GET /api/stilton HTTP/1.1
+> > Host: ngx06.gxd88.cn
+> > User-Agent: curl/7.51.0
+> > Accept: */*
+> >
+> < HTTP/1.1 301 Moved Permanently
+> < Location: http://ngx04.gxd88.cn/stilton
+> < Vary: Accept-Encoding
+> < Date: Sun, 29 Jul 2018 05:08:06 GMT
+> < Content-Length: 17
+> < Content-Type: text/plain; charset=utf-8
+> <
+> * Ignoring the response-body
+> * Curl_http_done: called premature == 0
+> * Connection #0 to host 10.40.58.154 left intact
+> * Issue another request to this URL: 'http://ngx04.gxd88.cn/stilton'
+> *   Trying 10.40.58.154...
+> * TCP_NODELAY set
+> * Connected to ngx04.gxd88.cn (10.40.58.154) port 80 (#1)
+> > GET /stilton HTTP/1.1
+> > Host: ngx04.gxd88.cn
+> > User-Agent: curl/7.51.0
+> > Accept: */*
+> >
+> < HTTP/1.1 200 OK
+> < Accept-Ranges: bytes
+> < Content-Length: 517
+> < Content-Type: text/html
+> < Date: Sun, 29 Jul 2018 05:08:06 GMT
+> < Etag: "5784f6c9-205"
+> < Last-Modified: Tue, 12 Jul 2016 13:55:21 GMT
+> < Server: nginx/1.11.1
+> < Vary: Accept-Encoding
+> <
+> <html>
+>   <head>
+>     <style>
+>       html {
+>         background: url(./bg.png) no-repeat center center fixed;
+>         -webkit-background-size: cover;
+>         -moz-background-size: cover;
+>         -o-background-size: cover;
+>         background-size: cover;
+>       }
+> 
+>       h1 {
+>         font-family: Arial, Helvetica, sans-serif;
+>         background: rgba(187, 187, 187, 0.5);
+>         width: 3em;
+>         padding: 0.5em 1em;
+>         margin: 1em;
+>       }
+>     </style>
+>   </head>
+>   <body>
+>     <h1>Stilton</h1>
+>   </body>
+> </html>
+> * Curl_http_done: called premature == 0
+> * Connection #1 to host ngx04.gxd88.cn left intact
+> ```
+
+
+### **按域名多ingress文件定义规则 **
+
+> 因为定义annotation 为全局生效， 所以特殊的转发需要分文件部署
+
+Ingress 文件1
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx0901
+  namespace: default
+  labels: 
+    traffic-type: internal
+  annotations:
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+spec:
+  rules:
+  - host: ngx09.gxd88.cn
+    http:
+      paths:
+      - path: /api 
+        backend:
+          serviceName: nginx
+          servicePort: 80
+```
+
+ingress 文件2
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx0903
+  namespace: default
+  labels: 
+    traffic-type: internal
+  annotations:
+    traefik.ingress.kubernetes.io.rule-type: PathPrefixStripRegex
+spec:
+  rules:
+  - host: ngx09.gxd88.cn
+    http:
+      paths:
+      - path: /api/stilton/(.*) /stilton/$1
+        backend:
+          serviceName: stilton
+          servicePort: http
+```
+
+> 访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/a ` 匹配文件1中的path， 请求会删除/api
+>
+> 访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/stilton`匹配文件2中的path， 请求会转发为/stilton 
+>
+> 只有`/api/stilton`会匹配第二个文件的规则， 其他所有path会匹配第一条规则
