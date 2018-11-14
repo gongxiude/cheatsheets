@@ -219,6 +219,72 @@ data:
 
 `upstreamNameservers` 即使用的外部DNS，参考：[Configuring Private DNS Zones and Upstream Nameservers in Kubernetes](http://blog.kubernetes.io/2017/04/configuring-private-dns-zones-upstream-nameservers-kubernetes.html)
 
+### k8s 零停机部署(滚动升级)
+
+部署步骤： 
+- 创建一个新的replication controller。
+- 增加或减少pod副本数量，直到满足当前批次期望的数量。
+- 删除旧的replication controller。
+
+k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s是通过两个参数来精确地控制着每次滚动的pod数量, 如果未指定这两个可选参数，则k8s会使用默认配置
+
+>  `maxSurge` 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。
+> `maxUnavailable` 滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。
+
+#### example
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-test
+  labels:
+    k8s-app: nginx
+    traffic-type: external
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+```
+
+### deployment revision 清理策略
+
+可以通过设置`.spec.revisonHistoryLimit`设置deployment最多保留多少revison历史记录， 默认保留所有的历史记录；如果将该项设置为0，Deployment就不允许回退了。
+```yaml
+
+```
+
+### deployment pod重启重启策略
+
+重启策略是通过 Pod 定义中的 .spec.restartPolicy 进行设置的，有三种：
+
+Always：当容器终止退出后，总是重启容器，默认策略。
+Onfailure：当容器种植异常退出（退出码非0）时，才重启容器。
+Never：当容器终止退出时，才不重启容器。
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: on-failure-restart-pod
+spec:
+  containers:
+  - name: container
+    image: "ubuntu:14.04"
+    command: ["bash","-c","exit 1"]
+  restartPolicy: OnFailure
+```
+
+
 ## 参考
 
 - [kubernetes-handbook](https://jimmysong.io/kubernetes-handbook)

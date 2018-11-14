@@ -68,6 +68,30 @@ $ kubectl attach -it nginx-app-5jyvm
 ...
 ```
 
+kubectl get 定义输出格式
+```
+$ kubectl get pods traefik-ingress-public-hsgkl   -n kube-system  -o yaml
+```
+
+### kubectl label
+
+设置label
+```bash
+$ kubectl label nodes kube-node edgenode=true
+```
+
+查看所有节点的label
+```bash
+$ kubectl get node --show-labels
+```
+
+根据设置的label，进行过滤
+```bash
+kubectl get node -a -l "edgenode=true"
+```
+
+
+
 ## 高级命令
 
 {:.-three-column}
