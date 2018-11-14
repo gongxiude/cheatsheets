@@ -120,9 +120,8 @@ app: nginx
 
 ### **session 粘滞**
 
-> 所有的负载平衡器都支持粘滞会话(sticky sessions)。当粘滞会话被开启时，会有一个名称叫做`_TRAEFIK_BACKEND`的cookie在请求被初始化时被设置在请求初始化时。在随后的请求中，客户端会被直接转发到这个cookie中存储的后端（当然它要是健康可用的），如果这个后端不可用，将会指定一个新的后端。
->
-> 开启的方法为添加`traefik.ingress.kubernetes.io/affinity: "true"` 的annotations
+所有的负载平衡器都支持粘滞会话(sticky sessions)。当粘滞会话被开启时，会有一个名称叫做`_TRAEFIK_BACKEND`的cookie在请求被初始化时被设置在请求初始化时。在随后的请求中，客户端会被直接转发到这个cookie中存储的后端（当然它要是健康可用的），如果这个后端不可用，将会指定一个新的后端。
+开启的方法为添加`traefik.ingress.kubernetes.io/affinity: "true"` 的annotations
 
 定义在service 资源中， 不能定义在ingress资源中
 
@@ -145,35 +144,32 @@ app: nginx
 
 请求header 如下
 
-> ```bash
-> ➜  ~ curl -H "Host: ngx09.gxd88.cn" http://internal/api/ -v
-> GET /api/ HTTP/1.1
-> Host: ngx09.gxd88.cn
-> User-Agent: curl/7.51.0
-> Accept: /
-> < HTTP/1.1 200 OK
-> < Accept-Ranges: bytes
-> < Content-Length: 612
-> < Content-Type: text/html
-> < Date: Sun, 05 Aug 2018 04:07:11 GMT
-> < Etag: "54999765-264"
-> < Last-Modified: Tue, 23 Dec 2014 16:25:09 GMT
-> < Server: nginx/1.7.9
-> < Set-Cookie: _c43d4=http://172.20.0.162:80; Path=/.   cookie 记录后端服务IP
-> < Vary: Accept-Encoding
-> ```
+```bash
+➜  ~ curl -H "Host: ngx09.gxd88.cn" http://internal/api/ -v
+GET /api/ HTTP/1.1
+Host: ngx09.gxd88.cn
+User-Agent: curl/7.51.0
+Accept: /
+< HTTP/1.1 200 OK
+< Accept-Ranges: bytes
+< Content-Length: 612
+< Content-Type: text/html
+< Date: Sun, 05 Aug 2018 04:07:11 GMT
+< Etag: "54999765-264"
+< Last-Modified: Tue, 23 Dec 2014 16:25:09 GMT
+< Server: nginx/1.7.9
+< Set-Cookie: _c43d4=http://172.20.0.162:80; Path=/.   cookie 记录后端服务IP
+< Vary: Accept-Encoding
+```
 
 
 
 ###  **自定义日志格式, 添加字段**
 
-> https://docs.traefik.io/configuration/logs/ 
->
-> 日志文件添加请求类型： 是内部访问还是外部访问
->
-> 请求所属的部门
->
-> 
+https://docs.traefik.io/configuration/logs/ 
+日志文件添加请求类型： 是内部访问还是外部访问
+请求所属的部门
+
 
 ```yaml
 ---
@@ -201,7 +197,7 @@ http:
 
 ### **rewrite 相关实现**
 
-> rewrite 实现使用`traefik.ingress.kubernetes.io/rewrite-target `annotations , 具体实现如下， 实现的效果为 `/api/(.*)` 转发为`/api/$1` 其中`(.*)`和 `$1`为自动添加， 不支持绝对的路径匹配（如访问／api）会提示404
+rewrite 实现使用`traefik.ingress.kubernetes.io/rewrite-target `annotations , 具体实现如下， 实现的效果为 `/api/(.*)` 转发为`/api/$1` 其中`(.*)`和 `$1`为自动添加， 不支持绝对的路径匹配（如访问／api）会提示404
 
 - 访问`/api/a/(.*) `的请求rewrite为`/api/b/$1`
 - 访问`/api/a/(.*)` 的请求全部转发给后端为`/a/$1`
@@ -229,18 +225,16 @@ spec:
   
 ```
 
-> 具体的路由规则为`PathPrefix:/stilton;ReplacePathRegex: ^/stilton/(.*) /api/b/$1` 
-> `PathPrefix:/api/a;ReplacePathRegex: ^/api/a/(.*) /api/b/$1` 
+具体的路由规则为`PathPrefix:/stilton;ReplacePathRegex: ^/stilton/(.*) /api/b/$1` 
+`PathPrefix:/api/a;ReplacePathRegex: ^/api/a/(.*) /api/b/$1` 
 
 当前ingress下的所有path 都会添加相同的ReplacePathRegex
 
 - `/api/a`转发为`/a` 删除路径前缀
 
-> 使用`traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip` annotations
->
-> 或者使用`traefik.ingress.kubernetes.io/rewrite-target` annotations， 但是不支持路径本身
->
-> 或者使用`traefik.ingress.kubernetes.io/request-modifier: AddPrefix: /api`, path只监听`/a`， 路由规则为`PathPrefixStrip /api`
+使用`traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip` annotations
+或者使用`traefik.ingress.kubernetes.io/rewrite-target` annotations， 但是不支持路径本身
+或者使用`traefik.ingress.kubernetes.io/request-modifier: AddPrefix: /api`, path只监听`/a`， 路由规则为`PathPrefixStrip /api`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -263,18 +257,15 @@ spec:
           servicePort: 80
 ```
 
-> 请求方法 
->
-> ```bash
-> curl -H "Host: ngx09.gxd88.cn" http://internal/api/asd
-> ```
->
-> 请求到后端为
->
-> ```bash
-> http://backend/asd
-> ```
-> 最终实现当前域名下的所有请求都会去掉/api
+请求方法 
+```bash
+curl -H "Host: ngx09.gxd88.cn" http://internal/api/asd
+```
+请求到后端为
+```bash
+http://backend/asd
+```
+最终实现当前域名下的所有请求都会去掉/api
 
 
 
@@ -397,10 +388,10 @@ spec:
           serviceName: nginx
           servicePort: 80
 ```
-> 如上文件创建ingress后改站点只允许`10.40.0.227`该IP地址访问， 也支持`192.168.0.1/24`网段的配置， 多个实用逗号分隔
+如上文件创建ingress后改站点只允许`10.40.0.227`该IP地址访问， 也支持`192.168.0.1/24`网段的配置， 多个实用逗号分隔
 
 
-##### **X-Forwarded-For**
+#### **X-Forwarded-For**
     
 需要添加`ingress.kubernetes.io/whitelist-x-forwarded-for: "true"` 
 
@@ -427,7 +418,7 @@ annotations:
 
   
 
-### **域名跳转 **
+### **域名跳转**
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -453,7 +444,7 @@ backend:
 
 ```
 
-> 域名跳转必须配置如下annotations
+域名跳转必须配置如下annotations
 
 ```yaml
 annotations: 
@@ -462,78 +453,69 @@ annotations:
 ```
 
 访问http://ngx06.gxd88.cn/api/a的请求会`301`跳转到http://ngx04.gxd88.cn/a
->
-> ```bash
-> ➜  ~ curl -L  -H  "Host: ngx06.gxd88.cn"  http://internal/api/stilton  -v
-> *   Trying 10.40.58.154...
-> * TCP_NODELAY set
-> * Connected to 10.40.58.154 (10.40.58.154) port 80 (#0)
-> > GET /api/stilton HTTP/1.1
-> > Host: ngx06.gxd88.cn
-> > User-Agent: curl/7.51.0
-> > Accept: */*
-> >
-> < HTTP/1.1 301 Moved Permanently
-> < Location: http://ngx04.gxd88.cn/stilton
-> < Vary: Accept-Encoding
-> < Date: Sun, 29 Jul 2018 05:08:06 GMT
-> < Content-Length: 17
-> < Content-Type: text/plain; charset=utf-8
-> <
-> * Ignoring the response-body
-> * Curl_http_done: called premature == 0
-> * Connection #0 to host 10.40.58.154 left intact
-> * Issue another request to this URL: 'http://ngx04.gxd88.cn/stilton'
-> *   Trying 10.40.58.154...
-> * TCP_NODELAY set
-> * Connected to ngx04.gxd88.cn (10.40.58.154) port 80 (#1)
-> > GET /stilton HTTP/1.1
-> > Host: ngx04.gxd88.cn
-> > User-Agent: curl/7.51.0
-> > Accept: */*
-> >
-> < HTTP/1.1 200 OK
-> < Accept-Ranges: bytes
-> < Content-Length: 517
-> < Content-Type: text/html
-> < Date: Sun, 29 Jul 2018 05:08:06 GMT
-> < Etag: "5784f6c9-205"
-> < Last-Modified: Tue, 12 Jul 2016 13:55:21 GMT
-> < Server: nginx/1.11.1
-> < Vary: Accept-Encoding
-> <
-> <html>
->   <head>
->     <style>
->       html {
->         background: url(./bg.png) no-repeat center center fixed;
->         -webkit-background-size: cover;
->         -moz-background-size: cover;
->         -o-background-size: cover;
->         background-size: cover;
->       }
-> 
->       h1 {
->         font-family: Arial, Helvetica, sans-serif;
->         background: rgba(187, 187, 187, 0.5);
->         width: 3em;
->         padding: 0.5em 1em;
->         margin: 1em;
->       }
->     </style>
->   </head>
->   <body>
->     <h1>Stilton</h1>
->   </body>
-> </html>
-> * Curl_http_done: called premature == 0
-> * Connection #1 to host ngx04.gxd88.cn left intact
-> ```
+
+```bash
+➜  ~ curl -L  -H  "Host: ngx06.gxd88.cn"  http://internal/api/stilton  -v
+*   Trying 10.40.58.154...
+* TCP_NODELAY set
+* Connected to 10.40.58.154 (10.40.58.154) port 80 (#0)
+< GET /api/stilton HTTP/1.1
+< Host: ngx06.gxd88.cn
+< User-Agent: curl/7.51.0
+< Accept: */*
+<
+< HTTP/1.1 301 Moved Permanently
+< Location: http://ngx04.gxd88.cn/stilton
+< Vary: Accept-Encoding
+< Date: Sun, 29 Jul 2018 05:08:06 GMT
+< Content-Length: 17
+< Content-Type: text/plain; charset=utf-8
+<
+* Ignoring the response-body
+* Curl_http_done: called premature == 0
+* Connection #0 to host 10.40.58.154 left intact
+* Issue another request to this URL: 'http://ngx04.gxd88.cn/stilton'
+*   Trying 10.40.58.154...
+* TCP_NODELAY set
+* Connected to ngx04.gxd88.cn (10.40.58.154) port 80 (#1)
+< GET /stilton HTTP/1.1
+< Host: ngx04.gxd88.cn
+< User-Agent: curl/7.51.0
+< Accept: */*
+<
+< HTTP/1.1 200 OK
+< Accept-Ranges: bytes
+< Content-Length: 517
+< Content-Type: text/html
+< Date: Sun, 29 Jul 2018 05:08:06 GMT
+< Etag: "5784f6c9-205"
+< Last-Modified: Tue, 12 Jul 2016 13:55:21 GMT
+< Server: nginx/1.11.1
+< Vary: Accept-Encoding
+<
+<html  <head    <style      html {
+        background: url(./bg.png) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }
+
+      h1 {
+        font-family: Arial, Helvetica, sans-serif;
+        background: rgba(187, 187, 187, 0.5);
+        width: 3em;
+        padding: 0.5em 1em;
+        margin: 1em;
+      }
+    </style  </head  <body    <h1tilton</h1  </body</html* Curl_http_done: called premature == 0
+* Connection #1 to host ngx04.gxd88.cn left intact
+```
 
 
 ### **按域名多ingress文件定义规则 **
 
-> 因为定义annotation 为全局生效， 所以特殊的转发需要分文件部署
+因为定义annotation 为全局生效， 所以特殊的转发需要分文件部署
 
 Ingress 文件1
 
@@ -583,8 +565,8 @@ spec:
           servicePort: http
 ```
 
-> 访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/a ` 匹配文件1中的path， 请求会删除/api
->
-> 访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/stilton`匹配文件2中的path， 请求会转发为/stilton 
->
-> 只有`/api/stilton`会匹配第二个文件的规则， 其他所有path会匹配第一条规则
+访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/a ` 匹配文件1中的path， 请求会删除/api
+
+访问`curl -H "Host: ngx09.gxd88.cn" http://internal/api/stilton`匹配文件2中的path， 请求会转发为/stilton 
+
+只有`/api/stilton`会匹配第二个文件的规则， 其他所有path会匹配第一条规则
