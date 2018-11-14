@@ -271,6 +271,7 @@ spec:
 - Always：当容器终止退出后，总是重启容器，默认策略。
 - Onfailure：当容器种植异常退出（退出码非0）时，才重启容器。
 - Never：当容器终止退出时，才不重启容器。
+
 ```yaml
 apiVersion: v1
 kind: Pod
