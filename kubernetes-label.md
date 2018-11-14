@@ -8,11 +8,8 @@ category: Kubernetes
 updated: 2017-11-19
 ---
 
-## node label规划
-
 {: .-one-column}
-
-### label说明
+## node label规划
 department:  部门名称 
 `department: devops` `department: o2o`
 edgenode: 边缘节点。
@@ -50,10 +47,9 @@ spec:
       - name: nginx
         image: nginx:1.7.9
 ```
-
+{: .-one-column}
 ## affinity 
 
-{: .-one-column}
 
 ### 类型
 类型包括： 
@@ -66,7 +62,7 @@ spec:
 - `preferredDuringSchedulingIgnoredDuringExecution` 表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。
 - `requiredDuringSchedulingRequiredDuringExecution` 表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。其中RequiredDuringExecution表示如果后面节点标签发生了变化，满足了条件，则重新调度到满足条件的节点
 
-> 软策略和硬策略的区分是有用处的，硬策略适用于 pod 必须运行在某种节点，否则会出现问题的情况，比如集群中节点的架构不同，而运行的服务必须依赖某种架构提供的功能；软策略不同，它适用于满不满足条件都能工作，但是满足条件更好的情况，比如服务最好运行在某个区域，减少网络传输等。这种区分是用户的具体需求决定的，并没有绝对的技术依赖。
+软策略和硬策略的区分是有用处的，硬策略适用于 pod 必须运行在某种节点，否则会出现问题的情况，比如集群中节点的架构不同，而运行的服务必须依赖某种架构提供的功能；软策略不同，它适用于满不满足条件都能工作，但是满足条件更好的情况，比如服务最好运行在某个区域，减少网络传输等。这种区分是用户的具体需求决定的，并没有绝对的技术依赖。
 
 ### 匹配逻辑label
 - In: label的值在某个列表中
