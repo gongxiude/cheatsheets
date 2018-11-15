@@ -173,6 +173,29 @@ spec:
           topologyKey: kubernetes.io/hostname
 ```
 上面这个例子中的 POD 需要调度到某个指定的主机上，至少有一个节点上运行了这样的 POD：这个 POD 有一个app=busybox-pod的 label。podAntiAffinity则是希望最好不要调度到这样的节点：这个节点上运行了某个 POD，而这个 POD 有app=node-affinity-pod的 label。根据前面两个 POD 的定义，我们可以预见上面这个 POD 应该会被调度到一个busybox-pod被调度的节点上，而node-affinity-pod被调度到了该节点以外的节点
+
+## 污点（Taints）与容忍（tolerations）
+对于nodeAffinity无论是硬策略还是软策略方式，都是调度 POD 到预期节点上，而Taints恰好与之相反，如果一个节点标记为 Taints ，除非 POD 也被标识为可以容忍污点节点，否则该 Taints 节点不会被调度pod。
+
+比如用户希望把 Master 节点保留给 Kubernetes 系统组件使用，或者把一组具有特殊资源预留给某些 POD，则污点就很有用了，POD 不会再被调度到 taint 标记过的节点。taint 标记节点举例如下：
+```bash
+$ kubectl taint nodes kube-node key=value:NoSchedule
+node "kube-node" tainted
+```
+如果仍然希望某个 POD 调度到 taint 节点上，则必须在 Spec 中做出Toleration定义，才能调度到该节点，举例如下：
+```yaml
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "NoSchedule"
+```
+effect 共有三个可选项，可按实际需求进行设置：
+
+- NoSchedule：POD 不会被调度到标记为 taints 节点。
+- PreferNoSchedule：NoSchedule 的软策略版本。
+- NoExecute：该选项意味着一旦 Taint 生效，如该节点内正在运行的 POD 没有对应 Tolerate 设置，会直接被逐出
+
 ## example
 
 {:.-three-column}
@@ -304,3 +327,4 @@ spec:
 ## 参考
 
 - [Kubernetes 的亲和性调度](https://www.qikqiak.com/post/understand-kubernetes-affinity/)
+- [K8S调度之节点亲和性](https://www.cnblogs.com/breezey/p/9101666.html)
