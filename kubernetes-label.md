@@ -10,7 +10,7 @@ updated: 2017-11-19
 
 {: .-one-column}
 ## node label规划
-{: .-prime}
+
 | Shortcut       | Description                      |
 | ---            | ---                              |
 | `department`   | 部门名称                          |
@@ -137,46 +137,39 @@ spec:
 ### PodAffinity && PodAntiAffinity
 PodAffinit是根据通过已运行在节点上的pod的标签而不是node的标签来决定被调度pod的运行节点，因为pod运行在指定的namespace所以需要自己指定运行pod的namesapce
 ```yaml
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
-  name: nginx-test
+  name: with-pod-affinity
   labels:
-    k8s-app: nginx
+    app: pod-affinity-pod
 spec:
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      affinity: 
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            labelSelector:
-            - matchExpressions:
-              - key: department
-                operator: In
-                values:
-                - devops
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-                preference:
-                matchExpressions:
-                - key: instance-type
-                    operator: In
-                    values:
-                    - compute
-            - weight: 5
-                preference:
-                matchExpressions:
-                - key: cmratio
-                    operator: In
-                    values:
-                    - "0.5"
-      containers:
-      - name: nginx
-        image: nginx:1.7.9
+  containers:
+  - name: with-pod-affinity
+    image: nginx
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - busybox-pod
+        topologyKey: kubernetes.io/hostname
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - node-affinity-pod
+          topologyKey: kubernetes.io/hostname
 ```
+上面这个例子中的 POD 需要调度到某个指定的主机上，至少有一个节点上运行了这样的 POD：这个 POD 有一个app=busybox-pod的 label。podAntiAffinity则是希望最好不要调度到这样的节点：这个节点上运行了某个 POD，而这个 POD 有app=node-affinity-pod的 label。根据前面两个 POD 的定义，我们可以预见上面这个 POD 应该会被调度到一个busybox-pod被调度的节点上，而node-affinity-pod被调度到了该节点以外的节点
 ## example
 
 {:.-three-column}
