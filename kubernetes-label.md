@@ -15,7 +15,7 @@ updated: 2017-11-19
 | ---            | ---                              |
 | `department`   | 部门名称                          |
 | `edgenode`     | 是否为边缘节点                     |
-| `service`      | 节点安装服务名称                   |
+| `dedicated`    | 节点用途                          |
 | `cmratio`      | CPU和内存的比例                    |
 | `instance-type`| 实例类型                          |
 {: .-shortcuts}
@@ -25,7 +25,7 @@ updated: 2017-11-19
 | ---            | ---                              |
 | `department`   | `devops`,`o2o`,                          |
 | `edgenode`     | `true`                     |
-| `service`      | `traefik`,`dubbo`,`mysql`                   |
+| `dedicated`    | `online`,`edgenode`,`model`                   |
 | `cmratio`      | `o.5`,`0.25`,`0.125`                    |
 | `instance-type`| `compute`,`network`                         |
 {: .-shortcuts}
@@ -134,9 +134,49 @@ spec:
 `preferredDuringSchedulingIgnoredDuringExecution`值为列表，根据权重决定顺序`MatchExpressions`值为列表 关系为且，必须都满足
 
 
-### PodAffinity
-### PodAntiAffinity
-
+### PodAffinity && PodAntiAffinity
+PodAffinit是根据通过已运行在节点上的pod的标签而不是node的标签来决定被调度pod的运行节点，因为pod运行在指定的namespace所以需要自己指定运行pod的namesapce
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-test
+  labels:
+    k8s-app: nginx
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      affinity: 
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            labelSelector:
+            - matchExpressions:
+              - key: department
+                operator: In
+                values:
+                - devops
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+                preference:
+                matchExpressions:
+                - key: instance-type
+                    operator: In
+                    values:
+                    - compute
+            - weight: 5
+                preference:
+                matchExpressions:
+                - key: cmratio
+                    operator: In
+                    values:
+                    - "0.5"
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+```
 ## example
 
 {:.-three-column}
