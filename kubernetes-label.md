@@ -8,7 +8,7 @@ category: Kubernetes
 updated: 2017-11-19
 ---
 
-{: .-one-column}
+{: .-two-column}
 ## node label规划
 
 | Shortcut       | Description                      |
@@ -18,9 +18,10 @@ updated: 2017-11-19
 | `dedicated`    | 节点用途                          |
 | `cmratio`      | CPU和内存的比例                    |
 | `instance-type`| 实例类型                          |
-{: .-shortcuts}
+
 
 设置参数
+
 | Shortcut       | Description                      |
 | ---            | ---                              |
 | `department`   | `devops`,`o2o`,                          |
@@ -28,7 +29,6 @@ updated: 2017-11-19
 | `dedicated`    | `online`,`edgenode`,`model`                   |
 | `cmratio`      | `o.5`,`0.25`,`0.125`                    |
 | `instance-type`| `compute`,`network`                         |
-{: .-shortcuts}
 
 实现分配pod到node的方法，通过node label selector实现约束pod运行到指定节点,有两种方法 `nodeSelector`以及`affinity`
 
