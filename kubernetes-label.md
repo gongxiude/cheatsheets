@@ -296,3 +296,8 @@ spec:
         ports:
         - containerPort: 80
 ```
+
+
+## 参考
+
+- [Kubernetes 的亲和性调度](https://www.qikqiak.com/post/understand-kubernetes-affinity/)
