@@ -99,13 +99,29 @@ metadata:
   labels:
     k8s-app: nginx
 spec:
+  replicas: 5
   template:
     metadata:
       labels:
         app: nginx
     spec:
-      affinity: 
+      affinity:
         nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: dedicated
+                operator: In
+                values:
+                - model
+            weight: 1
+          - preference:
+              matchExpressions:
+              - key: dedicated
+                operator: In
+                values:
+                - app
+            weight: 5
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
@@ -113,21 +129,7 @@ spec:
                 operator: In
                 values:
                 - devops
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-                preference:
-                matchExpressions:
-                - key: instance-type
-                    operator: In
-                    values:
-                    - compute
-            - weight: 5
-                preference:
-                matchExpressions:
-                - key: cmratio
-                    operator: In
-                    values:
-                    - "0.5"
+
       containers:
       - name: nginx
         image: nginx:1.7.9
@@ -229,10 +231,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: service
+              - key: dedicated
                 operator: In 
                 values: 
-                - traefik
+                - edgenode
 
               - key: department
                 operator: In
