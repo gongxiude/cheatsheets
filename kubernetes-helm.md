@@ -47,6 +47,7 @@ Update Complete. ⎈ Happy Helming!⎈
 
 如果你的 web 服务提供了上面几个功能，那么也就可以当做 Helm Chart 仓库来使用了。
 
+{: .-one-column}
 ## 查找 chart
 
 Helm 将 Charts 包安装到 Kubernetes 集群中，一个安装实例就是一个新的 Release，要找到新的 Chart，我们可以通过搜索命令完成。
@@ -119,6 +120,7 @@ imageTag: "5.7.14"
 
 通过 helm search 命令可以找到我们想要的 chart 包，找到后就可以通过 helm install 命令来进行安装了。
 
+{: .-one-column}
 ## 安装 chart
 
 要安装新的软件包，直接使用 helm install 命令即可。最简单的情况下，它只需要一个 chart 的名称参数：
@@ -211,6 +213,7 @@ RESOURCES:
 
 可以看到当前 release 的状态是`DEPLOYED`，下面还有一些安装的时候出现的信息。
 
+{: .-one-column}
 ## 自定义 chart
 
 上面的安装方式是使用 chart 的默认配置选项。但是在很多时候，我们都需要自定义 chart 以满足自身的需求，要自定义 chart，我们就需要知道我们使用的 chart 支持的可配置选项才行。
@@ -478,6 +481,7 @@ persistence:
 $ helm install stable/mysql --set persistence.enabled=false --name mydb
 ```
 
+{: .-one-column}
 ## 升级
 
 我们这里将数据持久化禁用掉来对上面的 mydb 进行升级：
@@ -560,7 +564,7 @@ REVISION    UPDATED                     STATUS      CHART           DESCRIPTION
 ```
 $ $ helm rollback mydb 1
 ```
-
+{: .-one-column}
 ## 删除
 
 上节课我们就学习了要删除一个 release 直接使用 helm delete 命令就 OK：
