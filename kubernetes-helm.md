@@ -7,6 +7,7 @@ tags: [Featured]
 category: Kubernetes
 updated: 2017-11-19
 ---
+{: .-one-column}
 ## 仓库
 
 Helm 的 Repo 仓库和 Docker Registry 比较类似，Chart 库可以用来存储和共享打包 Chart 的位置，我们在安装了 Helm 后，默认的仓库地址是 google 的一个地址，这对于我们不能科学上网的同学就比较苦恼了，没办法访问到官方提供的 Chart 仓库，可以用`helm repo list`来查看当前的仓库配置：
