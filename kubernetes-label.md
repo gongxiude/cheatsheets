@@ -8,11 +8,9 @@ category: Kubernetes
 updated: 2017-11-19
 ---
 
-{: .-two-column}
+{: .-one-column}
 
 ## node label规划
-
-### label 节点规划
 
 | Shortcut       | Description                      |
 | ---            | ---                              |
@@ -60,23 +58,24 @@ spec:
         image: nginx:1.7.9
 ```
 
-{: .-there-column}
+{: .-one-column}
 ## affinity 
 
 ### 类型
 类型包括： 
-- `NodeAffinity`,
-- `PodAffinity`,
-- `PodAntiAffinity`
+- `NodeAffinity`, node affinity
+
+- `PodAffinity`, pod亲和性（Inter-pod affinity）
+
+- `PodAntiAffinity` 反亲和性（anti-affinity）
 
 限制方式： 
 
 - `requiredDuringSchedulingIgnoredDuringExecution` 表示pod必须部署到满足条件的节点上，如果没有满足条件的节点，就不停重试。其中IgnoreDuringExecution表示pod部署之后运行的时候，如果节点标签发生了变化，不再满足pod指定的条件，pod也会继续运行。
-- `requiredDuringSchedulingRequiredDuringExecution` 表示pod必须部署到满足条件的节点上，如果没有满足条件的节点，就不停重试。其中RequiredDuringExecution表示pod部署之后运行的时候，如果节点标签发生了变化，不再满足pod指定的条件，则重新选择符合要求的节点。
-- `preferredDuringSchedulingIgnoredDuringExecution` 表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。
-- `preferredDuringSchedulingRequiredDuringExecution` 表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。其中RequiredDuringExecution表示如果后面节点标签发生了变化，满足了条件，则重新调度到满足条件的节点
 
-软策略和硬策略的区分是有用处的，硬策略适用于 pod 必须运行在某种节点，否则会出现问题的情况，比如集群中节点的架构不同，而运行的服务必须依赖某种架构提供的功能；软策略不同，它适用于满不满足条件都能工作，但是满足条件更好的情况，比如服务最好运行在某个区域，减少网络传输等。这种区分是用户的具体需求决定的，并没有绝对的技术依赖。
+- `preferredDuringSchedulingIgnoredDuringExecution` 表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。
+
+- > 软策略和硬策略的区分是有用处的，硬策略适用于 pod 必须运行在某种节点，否则会出现问题的情况，比如集群中节点的架构不同，而运行的服务必须依赖某种架构提供的功能；软策略不同，它适用于满不满足条件都能工作，但是满足条件更好的情况，比如服务最好运行在某个区域，减少网络传输等。这种区分是用户的具体需求决定的，并没有绝对的技术依赖。
 
 匹配逻辑label
 
@@ -87,6 +86,7 @@ spec:
 - Gt：label的值大于某个值（字符串比较）
 - Lt：label的值小于某个值（字符串比较）
 如果nodeAffinity中nodeSelector有多个选项，节点满足任何一个条件即可；如果matchExpressions有多个选项，则节点必须同时满足这些选项才能运行pod 。需要说明的是，node并没有anti-affinity这种东西，因为NotIn和DoesNotExist能提供类似的功能。
+
 
 
 ### NodeAffinity
@@ -129,7 +129,6 @@ spec:
                 operator: In
                 values:
                 - devops
-
       containers:
       - name: nginx
         image: nginx:1.7.9
@@ -325,6 +324,77 @@ spec:
         - containerPort: 80
 ```
 
+### pod强制分配到不同的node节点上
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - nginx
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+```
+
+### 不同应用就近部署， 如app=nginx 和 app=frontend部署到相同节点
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - nginx
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+```
 
 ## 参考
 
