@@ -10,283 +10,321 @@ category: Kubernetes
 
 ## Kubernetes aliyun flexvolume
 
-{:.-three-column}
+{: .-one-column}
 
-### 在容器中获取 Pod 的IP
+### 配置阿里云role
 
-通过环境变量来实现，该环境变量直接引用 resource 的状态字段，示例如下：
-
-```Yaml
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: world-v2
-spec:
-  replicas: 3
-  selector:
-    app: world-v2
-  template:
-    metadata:
-      labels:
-        app: world-v2
-    spec:
-      containers:
-      - name: service
-        image: test
-        env:
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        ports:
-        - name: service
-          containerPort: 777
-```
-
-容器中可以直接使用 `POD_IP` 环境变量获取容器的 IP。
-
-### 指定容器的启动参数
-
-我们可以在 Pod 中为容器使用 command 为容器指定启动参数：
-
-```Bash
-command: ["/bin/bash","-c","bootstrap.sh"]
-```
-
-看似很简单，使用数组的方式定义，所有命令使用跟 Dockerfile 中的 CMD 配置是一样的，但是有一点不同的是，`bootsttap.sh` 必须具有可执行权限，否则容器启动时会出错。
-
-### 让Pod调用宿主机的docker能力
-
-我们可以想象一下这样的场景，让 Pod 来调用宿主机的 docker 能力，只需要将宿主机的 `docker` 命令和 `docker.sock` 文件挂载到 Pod 里面即可，如下：
-
-{:.-file}
-
-```Yaml
-apiVersion: v1
-kind: Pod
-metadata:
- name: busybox-cloudbomb
-spec:
- containers:
- - image: busybox
- command:
- - /bin/sh
- - "-c"
- - "while true; \
- do \
- docker run -d --name BOOM_$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 6) nginx ; \
- done"
- name: cloudbomb
- volumeMounts:
- - mountPath: /var/run/docker.sock
- name: docker-socket
- - mountPath: /bin/docker
- name: docker-binary
- volumes:
- - name: docker-socket
- hostPath:
- path: /var/run/docker.sock
- - name: docker-binary
- hostPath:
- path: /bin/docker
-```
-
-参考：[Architecture Patterns for Microservices in Kubernetes](https://www.infoq.com/presentations/patterns-microservices-kubernetes)
-
-### 使用Init container初始化应用配置
-
-Init container可以在应用程序的容器启动前先按顺序执行一批初始化容器，只有所有Init容器都启动成功后，Pod才算启动成功。看下下面这个例子（来源：[kubernetes: mounting volume from within init container - Stack Overflow](https://stackoverflow.com/questions/44109308/kubernetes-mounting-volume-from-within-init-container)）：
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: init
-  labels:
-    app: init
-  annotations:
-    pod.beta.kubernetes.io/init-containers: '[
+```json
+{
+    "Version": "1",
+    "Statement": [
         {
-            "name": "download",
-            "image": "axeclbr/git",
-            "command": [
-                "git",
-                "clone",
-                "https://github.com/mdn/beginner-html-site-scripted",
-                "/var/lib/data"
+            "Action": [
+                "ecs:Describe*",
+                "ecs:AttachDisk",
+                "ecs:CreateDisk",
+                "ecs:CreateSnapshot",
+                "ecs:DeleteDisk",
+                "ecs:DeleteSnapshot",
+                "ecs:DetachDisk",
+                "ecs:ModifyAutoSnapshotPolicyEx",
+                "ecs:ModifyDiskAttribute"
             ],
-            "volumeMounts": [
-                {
-                    "mountPath": "/var/lib/data",
-                    "name": "git"
-                }
-            ]
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "nas:*"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "oss:*"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow"
         }
-    ]'
-spec:
-  containers:
-  - name: run
-    image: docker.io/centos/httpd
-    ports:
-      - containerPort: 80
-    volumeMounts:
-    - mountPath: /var/www/html
-      name: git
-  volumes:
-  - emptyDir: {}
-    name: git
+    ]
+}
 ```
 
-这个例子就是用来再应用程序启动前首先从GitHub中拉取代码并存储到共享目录下。
+{: .-one-column}
 
-关于Init容器的更详细说明请参考 [init容器](../concepts/init-containers.md)。
+### 部署aliyun flexvolume
 
-### 使容器内时间与宿主机同步
-
-我们下载的很多容器内的时区都是格林尼治时间，与北京时间差8小时，这将导致容器内的日志和文件创建时间与实际时区不符，有两种方式解决这个问题：
-
-- 修改镜像中的时区配置文件
-- 将宿主机的时区配置文件`/etc/localtime`使用volume方式挂载到容器中
-
-第二种方式比较简单，不需要重做镜像，只要在应用的yaml文件中增加如下配置：
+aliyun-flexvolume.yml 
 
 ```yaml
-volumeMounts:
-  - name: host-time
-    mountPath: /etc/localtime
-    readOnly: true
-  volumes:
-  - name: host-time
-    hostPath:
-      path: /etc/localtime
-```
-
-### 在Pod中获取宿主机的主机名、namespace等
-
-这条技巧补充了第一条获取 podIP 的内容，方法都是一样的，只不过列出了更多的引用字段。
-
-参考下面的 pod 定义，每个 pod 里都有一个 {.spec.nodeName} 字段，通过 `fieldRef` 和环境变量，就可以在Pod中获取宿主机的主机名（访问环境变量`MY_NODE_NAME`）。
-
-```yaml
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
-  name: dapi-test-pod
-spec:
-  containers:
-    - name: test-container
-      image: busybox
-      command: [ "/bin/sh", "-c", "env" ]
-      env:
-        - name: MY_NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: MY_POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: MY_POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        - name: MY_POD_SERVICE_ACCOUNT
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.serviceAccountName
-  restartPolicy: Never
-```
-### 配置Pod使用外部DNS
-
-修改kube-dns的使用的ConfigMap。
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kube-dns
+  name: flexvolume
   namespace: kube-system
-data:
-  stubDomains: |
-    {"k8s.com": ["192.168.10.10"]}
-  upstreamNameservers: |
-    ["8.8.8.8", "8.8.4.4"]
-```
-
-`upstreamNameservers` 即使用的外部DNS，参考：[Configuring Private DNS Zones and Upstream Nameservers in Kubernetes](http://blog.kubernetes.io/2017/04/configuring-private-dns-zones-upstream-nameservers-kubernetes.html)
-
-### k8s 零停机部署(滚动升级)
-
-部署步骤： 
-- 创建一个新的replication controller。
-- 增加或减少pod副本数量，直到满足当前批次期望的数量。
-- 删除旧的replication controller。
-
-k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s是通过两个参数来精确地控制着每次滚动的pod数量, 如果未指定这两个可选参数，则k8s会使用默认配置
-
-`maxSurge` 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。
-
-`maxUnavailable` 滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。
-
-#### example
-```yaml
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: nginx-test
   labels:
-    k8s-app: nginx
-    traffic-type: external
+    k8s-volume: flexvolume
 spec:
-  replicas: 3
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 3
-      maxUnavailable: 1
+  selector:
+    matchLabels:
+      name: acs-flexvolume
   template:
     metadata:
       labels:
-        app: nginx
+        name: acs-flexvolume
     spec:
+      hostPID: true
+      hostNetwork: true
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
       containers:
-      - name: nginx
-        image: nginx:1.7.9
-```
-
-### deployment revision 清理策略
-
-可以通过设置`.spec.revisonHistoryLimit`设置deployment最多保留多少revison历史记录， 默认保留所有的历史记录；如果将该项设置为0，Deployment就不允许回退了。
-```yaml
-
-```
-
-### deployment pod重启重启策略
-
-重启策略是通过 Pod 定义中的 .spec.restartPolicy 进行设置的，有三种：
-
-- Always：当容器终止退出后，总是重启容器，默认策略。
-- Onfailure：当容器种植异常退出（退出码非0）时，才重启容器。
-- Never：当容器终止退出时，才不重启容器。
-
-```yaml
-apiVersion: v1
-kind: Pod
+      - name: acs-flexvolume
+        image: registry.cn-hangzhou.aliyuncs.com/acs/flexvolume:v1.9.7-42e8198
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        env:
+        - name: ACS_DISK
+          value: "true"
+        - name: ACS_NAS
+          value: "true"
+        - name: ACS_OSS
+          value: "true"
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: usrdir
+          mountPath: /host/usr/
+        - name: etcdir
+          mountPath: /host/etc/
+        - name: logdir
+          mountPath: /var/log/alicloud/
+      volumes:
+      - name: usrdir
+        hostPath:
+          path: /usr/
+      - name: etcdir
+        hostPath:
+          path: /etc/
+      - name: logdir
+        hostPath:
+          path: /var/log/alicloud/
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
 metadata:
-  name: on-failure-restart-pod
+  name: alicloud-disk-common
+provisioner: alicloud/disk
+parameters:
+  type: cloud
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: alicloud-disk-efficiency
+provisioner: alicloud/disk
+parameters:
+  type: cloud_efficiency
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: alicloud-disk-ssd
+provisioner: alicloud/disk
+parameters:
+  type: cloud_ssd
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: alicloud-disk-available
+provisioner: alicloud/disk
+parameters:
+  type: available
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: alicloud-disk-controller-runner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["list", "watch", "create", "update", "patch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alicloud-disk-controller
+  namespace: kube-system
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: run-alicloud-disk-controller
+subjects:
+  - kind: ServiceAccount
+    name: alicloud-disk-controller
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: alicloud-disk-controller-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: alicloud-disk-controller
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: alicloud-disk-controller
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+        key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        operator: Exists
+        key: node.cloudprovider.kubernetes.io/uninitialized
+      nodeSelector:
+         node-role.kubernetes.io/master: ""
+      serviceAccount: alicloud-disk-controller
+      containers:
+        - name: alicloud-disk-controller
+          image: registry.cn-hangzhou.aliyuncs.com/acs/alicloud-disk-controller:v1.9.3-ed710ce
+          volumeMounts:
+            - name: cloud-config
+              mountPath: /etc/kubernetes/
+            - name: logdir
+              mountPath: /var/log/alicloud/
+      volumes:
+        - name: cloud-config
+          hostPath:
+            path: /opt/kubernetes/conf/
+        - name: logdir
+          hostPath:
+            path: /var/log/alicloud/
+```
+
+##  阿里云盘动态存储卷
+**默认选项**
+
+在多可用区的集群中，需要您手动创建上述 StorageClass，这样可以更准确的定义所需要云盘的可用区信息；
+集群默认提供了下面几种 StorageClass，可以在单可用区类型的集群中使用。
+- alicloud-disk-common：普通云盘。
+- alicloud-disk-efficiency：高效云盘。
+- alicloud-disk-ssd：SSD云盘。
+- alicloud-disk-available：提供高可用选项，先试图创建高效云盘；如果相应可用区的高效云盘资源售尽，再试图创建SSD盘；如果SSD售尽，则试图创建普通云盘。
+
+**规格限制**
+
+对创建的云盘容量有如下要求：
+
+- 普通云盘：最小5Gi
+- 高效云盘：最小20Gi
+- SSD云盘：最小20Gi
+
+
+
+
+#### 创建 StorageClass 
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-disk-ssd-beijing-a
+parameters:
+  regionid: cn-beijing
+  type: cloud_ssd
+  zoneid: cn-beijing-a
+provisioner: alicloud/disk
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+```
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-disk-ssd-beijing-b
+parameters:
+  regionid: cn-beijing
+  type: cloud_ssd
+  zoneid: cn-beijing-b
+provisioner: alicloud/disk
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+```
+
+参数说明：
+- provisioner：配置为 alicloud/disk，标识StorageClass使用阿里云云盘 provisioner 插件创建。
+- type：标识云盘类型，支持 cloud、cloud_efficiency、cloud_ssd、available 四种类型；其中 available 会对高效、SSD、普通云盘依次尝试创建，直到创建成功。
+- regionid：期望创建云盘的区域。
+- reclaimPolicy: 云盘的回收策略，默认为Delete，支持Retain。如果数据安全性要求高，推荐使用Retain方式以免误删；
+- zoneid：期望创建云盘的可用区。
+- encrypted：（可选）创建的云盘是否加密，默认情况是false，创建的云盘不加密。
+
+#### 创建服务
+```yaml 
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: disk-ssd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: alicloud-disk-ssd-hangzhou-b
+  resources:
+    requests:
+      storage: 20Gi
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: disk-pod-ssd
 spec:
   containers:
-  - name: container
-    image: "ubuntu:14.04"
-    command: ["bash","-c","exit 1"]
-  restartPolicy: OnFailure
+  - name: disk-pod
+    image: nginx
+    volumeMounts:
+      - name: disk-pvc
+        mountPath: "/mnt"
+  restartPolicy: "Never"
+  volumes:
+    - name: disk-pvc
+      persistentVolumeClaim:
+        claimName: disk-ssd
 ```
+
 
 
 ## 参考
 
-- [kubernetes-handbook](https://jimmysong.io/kubernetes-handbook)
+- [容器服务支持 kubernetes Pod 自动绑定阿里云云盘、NAS、 OSS 存储服务。](https://help.aliyun.com/document_detail/86784.html?spm=a2c4g.11174283.6.682.24b12cee9AZwuM)
