@@ -164,7 +164,7 @@ Accept: /
 
 
 
-###  **自定义日志格式, 添加字段**
+###  **自定义header格式, 添加字段**
 
 https://docs.traefik.io/configuration/logs/ 
 日志文件添加请求类型： 是内部访问还是外部访问
@@ -272,6 +272,7 @@ http://backend/asd
 
 ### **http 强制跳转https**
 
+** 方法一 **
 ```yaml 
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -292,6 +293,51 @@ http:
   servicePort: 80
 ```
 
+** 方法二 **
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: redirectdomain
+  namespace: default
+  labels:
+    traffic-type: internal
+  annotations:
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/redirect-regex: ^http://(.*)
+    traefik.ingress.kubernetes.io/redirect-replacement: https://$1
+spec:
+  rules:
+  - host: redirectdomain.gxd88.cn
+    http:
+      paths:
+      - path: /image
+        backend:
+          serviceName: nginx
+          servicePort: 80
+```
+
+** 方法三 ** 
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx05
+  namespace: default
+  labels: 
+    traffic-type: internal
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: ngx05.gxd88.cn
+http:
+  paths:
+  - backend:
+  serviceName: nginx
+  servicePort: 80
+```
 
 
 ### **相同域名下托管多个站点**
