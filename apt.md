@@ -16,17 +16,17 @@ Getting started
 ### apt-get 
 {: .-prime}
 
-| Shortcut       |
-| ---            |
-| `install and reinstall`          |
-| `remove`         |
-| ---            |
-| `purge and --purge`           |
-| `upgrade` |
-| ---            |
-| `update`           |
-| `clean and autoclean`          |
-| ---            |
+| Shortcut       | Description                      |
+| ---            | ---                              |
+| `install and reinstall`          | 安装软件包             |
+| `remove`         | 删除软件包 |
+| ---            | ---                              |
+| `purge and --purge`           | 删除软件包                        |
+| `upgrade` | 更新系统所有软件包  |
+| ---            | ---                              |
+| `update`           | 更新index文件             |
+| `clean and autoclean`          |       |
+| ---            | ---                              |
 
 {: .-shortcuts}
 
@@ -34,17 +34,17 @@ Getting started
 ### dpkg
 {: .-prime}
 
-| Shortcut       |
-| ---            |
-| `--list or -l `          |
-| `--install`         |
-| ---            |
-| `--remove`           |
-| `--purge` |
-| ---            |
-| `--update`           |
-| `--contents`          |
-| ---            |
+| Shortcut       | Description                      |
+| ---            | ---                              |
+| `--list or -l `          | 列出所有安装软件包         |
+| `--install`         | 安装软件包 |
+| ---            | ---                              |
+| `--remove`           | 删除软件包                        |
+| `--purge` | 删除软件包以及所有资源文件 |
+| ---            | ---                              |
+| `--update`           | 更新                     |
+| `--contents`          |       |
+| ---            | ---                              |
 
 {: .-shortcuts}
 
