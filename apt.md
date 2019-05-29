@@ -16,17 +16,17 @@ Getting started
 ### apt-get 
 {: .-prime}
 
-| Shortcut       | Description                      |
-| ---            | ---                              |
-| `install and reinstall`          | Close all files                  |
-| `remove`         | Close all files, abandon changes |
-| ---            | ---                              |
-| `purge and --purge`           | Save                             |
-| `upgrade` | Save and close file              |
-| ---            | ---                              |
-| `update`           | Close file                       |
-| `clean and autoclean`          | Close file, abandon changes      |
-| ---            | ---                              |
+| Shortcut       |
+| ---            |
+| `install and reinstall`          |
+| `remove`         |
+| ---            |
+| `purge and --purge`           |
+| `upgrade` |
+| ---            |
+| `update`           |
+| `clean and autoclean`          |
+| ---            |
 
 {: .-shortcuts}
 
@@ -34,17 +34,17 @@ Getting started
 ### dpkg
 {: .-prime}
 
-| Shortcut       | Description                      |
-| ---            | ---                              |
-| `--list or -l `          | Close all files                  |
-| `--install`         | Close all files, abandon changes |
-| ---            | ---                              |
-| `--remove`           | Save                             |
-| `--purge` | Save and close file              |
-| ---            | ---                              |
-| `--update`           | Close file                       |
-| `--contents`          | Close file, abandon changes      |
-| ---            | ---                              |
+| Shortcut       |
+| ---            |
+| `--list or -l `          |
+| `--install`         |
+| ---            |
+| `--remove`           |
+| `--purge` |
+| ---            |
+| `--update`           |
+| `--contents`          |
+| ---            |
 
 {: .-shortcuts}
 
@@ -118,7 +118,7 @@ $ dpkg --purge [package-name]
 **列出操作系统安装的软件包**
 ```bash 
 $ dpkg -l [package-name-pattern] 
-``` 
+```
 or 使用正则表达式
 ```bash 
 $ dpkg -l "re*" 
