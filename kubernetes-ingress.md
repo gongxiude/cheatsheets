@@ -89,6 +89,8 @@ spec:
   tls:
     - secretName: traefik-ui-tls-cert
 ```
+> 泛域名解析一个集群只需要一个 
+
 在ingress 创建的空间内创建secert
 
 ```
@@ -272,7 +274,7 @@ http://backend/asd
 
 ### **http 强制跳转https**
 
-** 方法一 **
+- 方法一 
 ```yaml 
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -293,7 +295,7 @@ http:
   servicePort: 80
 ```
 
-** 方法二 **
+- 方法二 
 ```yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -317,7 +319,7 @@ spec:
           servicePort: 80
 ```
 
-** 方法三 ** 
+- 方法三
 ```yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
