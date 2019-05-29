@@ -49,9 +49,9 @@ Getting started
 {: .-shortcuts}
 
 
-### Examples
+## Examples
 
-#### apt-get 使用示例
+### apt-get 使用示例
 
 **安装软件包**
 ```bash
@@ -89,7 +89,7 @@ $ apt-get --reinstall install [package-name]
 
 
 
-#### dpkg 使用示例
+### dpkg 使用示例
 
 **安装软件包**
 ```bash
