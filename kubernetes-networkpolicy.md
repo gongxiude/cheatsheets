@@ -213,7 +213,7 @@ spec:
 
 ```
 $ kubectl run web --image=nginx --labels app=web,env=prod --expose --port 80
-$ kubectl run debug-tools --image=wcr.wecash.net/wekube/debug-tools:v1.0.1  --labels app=debug-tools
+$ kubectl run debug-tools --image=wcr.xxx.net/wekube/debug-tools:v1.0.1  --labels app=debug-tools
 ```
 网络策略 
 ```yaml 
