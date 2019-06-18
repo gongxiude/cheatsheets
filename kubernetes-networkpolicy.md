@@ -323,14 +323,35 @@ spec:
       - podSelector: {}
 ```
 
-### 允许其它namespace下的pod访问当前namespace下的pod
+
+### 允许特定IP地址访问该pod
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ip-access-policy
+  namespace: net-policy-test
+spec:
+  podSelector: 
+    matchLabels: 
+      app: web
+      env: prod
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from: 
+      - ipBlock:
+          cidr: 10.45.0.0/16 #禁止该IP地址段访问
+      - ipBlock:
+          cidr: 10.40.0.0/16 #禁止该IP段访问
+          except:
+          - 10.40.9.136/22   #排除IP地址
 
 ```
-
-```
-
 
 ## 参考
 
 - [Kubernetes Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [kubernetes network policy学习笔记](https://segmentfault.com/a/1190000012692009)
+- [Kubernetes Network Policies](https://feisky.gitbooks.io/kubernetes/concepts/network-policy.html#%E7%A6%81%E6%AD%A2%E8%AE%BF%E9%97%AE%E6%8C%87%E5%AE%9A%E6%9C%8D%E5%8A%A1)
