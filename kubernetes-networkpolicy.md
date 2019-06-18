@@ -21,8 +21,11 @@ updated: 2017-11-19
 - metadata 描述信息
 - podSelector pod选择器，选定的pod所有的出入站流量要遵循本networkpolicy的约束
 - policyTypes 策略类型。包括了Ingress和Egress，默认情况下一个policyTypes的值一定会包含Ingress，当有egress规则时，policyTypes的值中会包含Egress
-- ingress 入站
+- ingress 入站 
 - egress 出站
+
+> PS:   在podSelector为空对象(即值为`{}`)时,则是选择`该命名空间`所有的pod,如果`ingress/engress`为空对象(即值为`{}`)时,则允许所有流量进/出
+
 
 
 
@@ -104,6 +107,7 @@ spec:
   policyTypes:
   - Ingress
 ```
+> 没有配置ingress字段， 则表示没有允许的入口， 拒绝所有流量
 
 ### allow all ingress traffic
 
@@ -120,6 +124,7 @@ spec:
   ingress:
   - {}
 ```
+> 配置了一个空的ingress， 表示所有的入口， 允许所有的进入 
 
 ### deny all egress traffic 
 同namespace的pod，出站规则为全部禁止
@@ -203,10 +208,14 @@ spec:
 2. 允许带有 project=myprojects 标签的 namespace 中所有 Pod 访问 default namespace 中带有 role=db 标签 Pod 的 6379 端口
 
 ### 禁止访问指定服务 
+
+禁止相同namespace或者其它namespace下的所有pod访问该服务
+
 ```
 $ kubectl run web --image=nginx --labels app=web,env=prod --expose --port 80
+$ kubectl run debug-tools --image=wcr.wecash.net/wekube/debug-tools:v1.0.1  --labels app=debug-tools
 ```
-** 网络策略 ** 
+网络策略 
 ```yaml 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -221,6 +230,24 @@ spec:
   policyTypes:
   - Ingress
 ```
+
+测试步骤： 
+
+10.40.237.91 为pod的IP地址
+```bash 
+$ ➜  network-policy kubectl exec -it debug-tools -n net-policy-test  ping 10.40.237.91
+PING 10.40.237.91 (10.40.237.91) 56(84) bytes of data. 
+```
+
+```bash 
+➜  network-policy kubectl exec -it debug-tools -n net-policy-test01   ping 10.40.237.91
+PING 10.40.237.91 (10.40.237.91) 56(84) bytes of data.
+^C
+--- 10.40.237.91 ping statistics ---
+2 packets transmitted, 0 received, 100% packet loss, time 999ms
+```
+
+
 
 ### 只允许指定 Pod 访问服务 
 
@@ -288,9 +315,7 @@ metadata:
   name: deny-other-namespace-access-pod
   namespace: net-policy-test
 spec:
-  podSelector: 
-    matchLabels: 
-
+  podSelector: {}
   policyTypes:
   - Ingress
   ingress: 
@@ -298,6 +323,11 @@ spec:
       - podSelector: {}
 ```
 
+### 允许其它namespace下的pod访问当前namespace下的pod
+
+```
+
+```
 
 
 ## 参考
