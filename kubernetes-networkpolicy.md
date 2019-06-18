@@ -77,8 +77,11 @@ spec:
 
  
 
-# example
+
 ## namespace 隔离
+
+{: .-one-column}
+
 默认情况下，所有 Pod 之间是全通的。每个 Namespace 可以配置独立的网络策略，来隔离 Pod 之间的流量。
 
 {:.-three-column}
@@ -107,12 +110,6 @@ spec:
 ### allow all ingress traffic
 
 namespace的pod，入站规则为全部开放
-
-设置label
-
-```bash
-kubectl  label nodes node department=devops
-```
 
 资源文件
 ```yaml
@@ -174,10 +171,12 @@ spec:
 
 
 ## pod 隔离
+{: .-one-column}
 
 通过使用标签选择器（包括 namespaceSelector 和 podSelector）来控制 Pod 之间的流量。比如下面的 Network Policy
 
 
+### example
 
 ```yaml 
 apiVersion: networking.k8s.io/v1
@@ -301,11 +300,6 @@ spec:
       - podSelector: {}
 ```
 
-### 综合例子
-
-```yaml 
-
-```
 
 
 ## 参考
