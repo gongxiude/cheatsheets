@@ -78,13 +78,12 @@ spec:
  
 
 
-## namespace 隔离
-
 {: .-one-column}
+## namespace 隔离
 
 默认情况下，所有 Pod 之间是全通的。每个 Namespace 可以配置独立的网络策略，来隔离 Pod 之间的流量。
 
-{:.-three-column}
+{: .-three-column}
 
 ### deny all ingress traffic
 
