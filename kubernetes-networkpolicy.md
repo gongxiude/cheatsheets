@@ -84,7 +84,6 @@ spec:
 默认情况下，所有 Pod 之间是全通的。每个 Namespace 可以配置独立的网络策略，来隔离 Pod 之间的流量。
 
 {: .-three-column}
-
 ### deny all ingress traffic
 
 同namespace的pod，入站规则为全部禁止
@@ -200,8 +199,8 @@ spec:
       port: 6379
 ```
 
-允许 default namespace 中带有 role=frontend 标签的 Pod 访问 default namespace 中带有 role=db 标签 Pod 的 6379 端口
-允许带有 project=myprojects 标签的 namespace 中所有 Pod 访问 default namespace 中带有 role=db 标签 Pod 的 6379 端口
+1. 允许 default namespace 中带有 role=frontend 标签的 Pod 访问 default namespace 中带有 role=db 标签 Pod 的 6379 端口
+2. 允许带有 project=myprojects 标签的 namespace 中所有 Pod 访问 default namespace 中带有 role=db 标签 Pod 的 6379 端口
 
 ### 禁止访问指定服务 
 ```
