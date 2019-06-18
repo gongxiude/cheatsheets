@@ -78,9 +78,9 @@ spec:
  
 
 
-{: .-one-column}
 ## namespace 隔离
 
+### 描述
 默认情况下，所有 Pod 之间是全通的。每个 Namespace 可以配置独立的网络策略，来隔离 Pod 之间的流量。
 
 {: .-three-column}
@@ -169,8 +169,8 @@ spec:
 
 
 ## pod 隔离
-{: .-one-column}
 
+### 描述
 通过使用标签选择器（包括 namespaceSelector 和 podSelector）来控制 Pod 之间的流量。比如下面的 Network Policy
 
 
