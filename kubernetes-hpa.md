@@ -11,3 +11,5 @@ updated: 2017-11-19
 
 {: .-one-column}
 ## kuberetes pod动态伸缩(hpa)
+
+

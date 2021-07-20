@@ -26,6 +26,13 @@ $ kubectl run --image=nginx nginx-app --port=80 --env="DOMAIN=cluster"
 deployment "nginx-app" created
 ```
 
+### 切换namespace
+
+默认在default namespace下
+```
+kubectl config set-context --current --namespace=devops
+```
+
 ### 暴露服务
 
 #### kubectl expose
@@ -211,6 +218,78 @@ Grafana is running at https://108.59.85.141/api/v1/namespaces/kube-system/servic
 Heapster is running at https://108.59.85.141/api/v1/namespaces/kube-system/services/monitoring-heapster/proxy
 InfluxDB is running at https://108.59.85.141/api/v1/namespaces/kube-system/services/monitoring-influxdb/proxy
 ```
+
+## 如果一个pod启动有问题如何排查？
+
+
+* 首先查看pods状态， 可以使用命令kubectl get pods 
+
+```
+(base) ➜  kubectl get pods  -n dev
+NAME                                                        READY   STATUS             RESTARTS   AGE
+dev-java-resource-back-question-provider-6bf66cd85f-zrtjt   0/1     CrashLoopBackOff   5761       20d
+```
+
+* 如果查看是错误的状态， 可以使用`kubectl describe pod [name]`继续调试 
+
+* 如果没有发现问题可以使用`kubectl logs [pod-name] -n [namespace]`查看日志输出
+
+* 如果当前pod的日志没有发现问题可以查看以前pod的输出`kubectl logs --previous [pod-name] -n [namespace] `
+
+* 如果还是不能解决问题重新启动pod, 先执行`kubectl scale deployment [name] --replicas=0`关闭所有pod， 再执行`kubectl scale deployment [name] --replicas=1`启动pod，也可以直接执行删除pod操作
+
+##  格式化输出
+
+要以特定的格式向终端窗口输出详细信息，可以在 `kubectl` 命令中添加 `-o` 或者 `-output` 标志。
+
+| 输出格式                            | 描述                                                         |
+| ----------------------------------- | ------------------------------------------------------------ |
+| `-o=custom-columns=<spec>`          | 使用逗号分隔的自定义列列表打印表格                           |
+| `-o=custom-columns-file=<filename>` | 使用 文件中的自定义列模板打印表格                            |
+| `-o=json`                           | 输出 JSON 格式的 API 对象                                    |
+| `-o=jsonpath=<template>`            | 打印 [jsonpath](https://kubernetes.io/docs/user-guide/jsonpath) 表达式中定义的字段 |
+| `-o=jsonpath-file=<filename>`       | 打印由 文件中的 [jsonpath](https://kubernetes.io/docs/user-guide/jsonpath) 表达式定义的字段 |
+| `-o=name`                           | 仅打印资源名称                                               |
+| `-o=wide`                           | 以纯文本格式输出任何附加信息，对于 Pod ，包含节点名称        |
+| `-o=yaml`                           | 输出 YAML 格式的 API 对象                                    |
+
+
+## 资源类型
+
+下表列出的是 kubernetes 中所有支持的类型和缩写的别名。
+
+| 资源类型                   | 缩写别名 |
+| -------------------------- | -------- |
+| `clusters`                 |          |
+| `componentstatuses`        | `cs`     |
+| `configmaps`               | `cm`     |
+| `daemonsets`               | `ds`     |
+| `deployments`              | `deploy` |
+| `endpoints`                | `ep`     |
+| `event`                    | `ev`     |
+| `horizontalpodautoscalers` | `hpa`    |
+| `ingresses`                | `ing`    |
+| `jobs`                     |          |
+| `limitranges`              | `limits` |
+| `namespaces`               | `ns`     |
+| `networkpolicies`          |          |
+| `nodes`                    | `no`     |
+| `statefulsets`             |          |
+| `persistentvolumeclaims`   | `pvc`    |
+| `persistentvolumes`        | `pv`     |
+| `pods`                     | `po`     |
+| `podsecuritypolicies`      | `psp`    |
+| `podtemplates`             |          |
+| `replicasets`              | `rs`     |
+| `replicationcontrollers`   | `rc`     |
+| `resourcequotas`           | `quota`  |
+| `cronjob`                  |          |
+| `secrets`                  |          |
+| `serviceaccount`           | `sa`     |
+| `services`                 | `svc`    |
+| `storageclasses`           |          |
+| `thirdpartyresources`      |          |
+
 
 ## 参考
 

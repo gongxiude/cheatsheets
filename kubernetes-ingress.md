@@ -8,9 +8,8 @@ updated: 2017-11-19
 category: Kubernetes
 ---
 
-{: .-one-column}
 ## K8s Ingress基本概念
-
+{: .-one-column}
 ​[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) & [Service](https://kubernetes.io/docs/concepts/services-networking/service/) 都会各自拥有一个 IP address 供读取，但这些 IP 仅在 K8s cluster 內部才有办法读取的到，但若要在 K8s cluster 上提供对外服务呢?
 
 而目前可以外部存取 K8s 上服务的方式主要有三种：
