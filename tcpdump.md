@@ -7,7 +7,7 @@ layout: 2017/sheet
 
 
 ## TCPDUMP 抓包命令速查
-{: .-there-column}
+{: .-two-column}
 
 
 ### 抓取eth0网卡192.168.1.0/24相关的流量
