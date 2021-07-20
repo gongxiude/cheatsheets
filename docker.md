@@ -80,13 +80,21 @@ $ docker images -a   # also show intermediate
 
 Manages `image`s.
 
-### Remove container
+### 删除Docker Image
 
-```bash
-docker rmi CONTAINER_ID_OR_NAME
+使用`docker images` 机上`-a`参数的命令来定位要删除的Image的ID。 之后将ID传递给`docker rmi`: 
+
+- Show Image
+
+```
+docker images -a
 ```
 
-Deletes `image`s.
+- Remove Image
+
+```
+docker rmi <ImageID> <ImageID>
+```
 
 ### Export and import image
 
@@ -145,21 +153,6 @@ $ docker system prune
 $ docker system prune -a
 ```
 
-
-### 删除Docker Image
-
-使用`docker images` 机上`-a`参数的命令来定位要删除的Image的ID。 之后将ID传递给`docker rmi`: 
-
-- Show Image
-
-```
-docker images -a
-```
-- Remove Image
-
-```
-docker rmi <ImageID> <ImageID>
-```
 
 ### 删除 dangling images
 
