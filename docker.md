@@ -95,8 +95,8 @@ docker save imagename > imagename.tar
 docker load -i imagename.tar
 ```
 
-## 示例
-{: .-three-column}
+示例
+------
 
 ### 查找主机上磁盘占用比较多的container
 
