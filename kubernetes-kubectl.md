@@ -219,7 +219,9 @@ Heapster is running at https://108.59.85.141/api/v1/namespaces/kube-system/servi
 InfluxDB is running at https://108.59.85.141/api/v1/namespaces/kube-system/services/monitoring-influxdb/proxy
 ```
 
-## 如果一个pod启动有问题如何排查？
+## 故障排查 
+
+### 如果一个pod启动有问题如何排查？
 
 
 * 首先查看pods状态， 可以使用命令kubectl get pods 
@@ -239,6 +241,7 @@ dev-java-resource-back-question-provider-6bf66cd85f-zrtjt   0/1     CrashLoopBac
 * 如果还是不能解决问题重新启动pod, 先执行`kubectl scale deployment [name] --replicas=0`关闭所有pod， 再执行`kubectl scale deployment [name] --replicas=1`启动pod，也可以直接执行删除pod操作
 
 ##  格式化输出
+{: .-one-column}
 
 要以特定的格式向终端窗口输出详细信息，可以在 `kubectl` 命令中添加 `-o` 或者 `-output` 标志。
 
@@ -255,6 +258,8 @@ dev-java-resource-back-question-provider-6bf66cd85f-zrtjt   0/1     CrashLoopBac
 
 
 ## 资源类型
+
+{: .-one-column}
 
 下表列出的是 kubernetes 中所有支持的类型和缩写的别名。
 
