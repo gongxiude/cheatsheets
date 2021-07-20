@@ -9,7 +9,6 @@ category: Kubernetes
 ---
 
 ## 如何在Kubernetes中调试CrashloopBackOff pod
-
 {: .-one-column}
 
 很多时候pod报错CrashloopBackOff都表示为pod中的程序存在了某些问题，并且一直在重复的启动 通过查看logs的方式又不能获取到有用的信息。 这个时候我们需要在失败的容器中运行一个shell，对失败的原因进行排查， 但是没有容器可以连接。 
