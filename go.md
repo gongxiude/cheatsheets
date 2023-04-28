@@ -150,6 +150,31 @@ u := uint(i)
 
 See: [Type conversions](https://tour.golang.org/basics/13)
 
+
+### Map 
+
+```
+m := make(map[string][string])
+
+# 添加
+m["china"] = "beijing"
+
+# 删除
+delete(m, "china)
+
+# 修改
+m["china"] = "shanghai"
+
+#遍历
+
+for key, value := range m {
+  fmt.println("key = ", key)
+  fmt.println("value = ", value)
+}
+
+```
+
+
 ## Flow control
 {: .-three-column}
 

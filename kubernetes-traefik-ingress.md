@@ -1,5 +1,5 @@
 ---
-title: Kubernetes ingress
+title: Kubernetes traefik ingress controller
 layout: 2017/sheet
 prism_languages: [bash,yaml]
 weight: -3
