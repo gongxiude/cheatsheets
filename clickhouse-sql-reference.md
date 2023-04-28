@@ -5,7 +5,6 @@ layout: 2017/sheet
 category: Databases
 ---
 
-{: .-one-column}
 ## 数据库操作SQL
 
 ClickHouse 目前支持 5 种类型的数据库引擎, 其中`Atomic`为默认数据库引擎：
@@ -21,10 +20,7 @@ ClickHouse 目前支持 5 种类型的数据库引擎, 其中`Atomic`为默认�
 
 参照官方文档 [Database Engines](https://clickhouse.com/docs/en/engines/database-engines)了解更多。
 
-{: .-two-column}
-### Create / Open / Delete Database
-
-#### CREATE DATABASE
+### CREATE DATABASE
 
 ```sql
 CREATE DATABASE [IF NOT EXISTS] db_name [ON CLUSTER cluster] [ENGINE = engine(...)] [COMMENT 'Comment']
@@ -37,7 +33,7 @@ CREATE DATABASE DatabaseName;
 CREATE DATABASE IF NOT EXISTS db_name[ENGINE=engine];
 ```
 
-#### DELETE DATABASE
+### DELETE DATABASE
 
 ```
 DROP DATABASE [IF EXISTS] db [ON CLUSTER cluster] [SYNC]
@@ -49,7 +45,7 @@ example:
 DROP DATABASE DatabaseName;
 ```
 
-#### SHOW DATABASE
+### SHOW DATABASE
 
 查看创建数据库语句
 ```
@@ -61,7 +57,6 @@ SHOW CREATE DATABASE <database>
 SHOW DATABASES;
 ```
 
-{: .-one-column}
 ## 数据表操作
 
 云数据库ClickHouse支持的表引擎分为MergeTree、Log、Integrations和Special四个系列。本文主要对这四类表引擎进行概要介绍，并通过示例介绍常用表引擎的功能。
@@ -80,22 +75,47 @@ ClickHouse 主要的表引擎分为 3 类别：
 | `Engine for Integration`  | [ODBC](https://clickhouse.com/docs/en/engines/table-engines/integrations/odbc) [JDBC](https://clickhouse.com/docs/en/engines/table-engines/integrations/jdbc) [MySQL](https://clickhouse.com/docs/en/engines/table-engines/integrations/mysql) [MongoDB](https://clickhouse.com/docs/en/engines/table-engines/integrations/mongodb) [HDFS](https://clickhouse.com/docs/en/engines/table-engines/integrations/hdfs) [S3](https://clickhouse.com/docs/en/engines/table-engines/integrations/s3) [Kafka](https://clickhouse.com/docs/en/engines/table-engines/integrations/kafka) [EmbeddedRocksDB](https://clickhouse.com/docs/en/engines/table-engines/integrations/embedded-rocksdb) [RabbitMQ](https://clickhouse.com/docs/en/engines/table-engines/integrations/rabbitmq) [PostgreSQL](https://clickhouse.com/docs/en/engines/table-engines/integrations/postgresql) |
 | `Special Engines Fmaily`  | [Distributed](https://clickhouse.com/docs/en/engines/table-engines/special/distributed#distributed) [MaterializedView](https://clickhouse.com/docs/en/engines/table-engines/special/materializedview#materializedview) [Dictionary](https://clickhouse.com/docs/en/engines/table-engines/special/dictionary#dictionary) [Merge](https://clickhouse.com/docs/en/engines/table-engines/special/merge#merge) [File](https://clickhouse.com/docs/en/engines/table-engines/special/file#file) [Null](https://clickhouse.com/docs/en/engines/table-engines/special/null#null) [Set](https://clickhouse.com/docs/en/engines/table-engines/special/set#set) [Join](https://clickhouse.com/docs/en/engines/table-engines/special/join#join) [URL](https://clickhouse.com/docs/en/engines/table-engines/special/url#table_engines-url) [View](https://clickhouse.com/docs/en/engines/table-engines/special/view#table_engines-view) [Memory](https://clickhouse.com/docs/en/engines/table-engines/special/memory#memory) [Buffer](https://clickhouse.com/docs/en/engines/table-engines/special/buffer#buffer) [KeeperMap](https://clickhouse.com/docs/en/engines/table-engines/special/keeper-map) |
 
-{: .-two-column}
 ### Create / Delete / Modify Table
 
-#### Create
+#### Create Table
+
+```
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr1] [compression_codec] [TTL expr1] [COMMENT 'comment for column'],
+    name2 [type2] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr2] [compression_codec] [TTL expr2] [COMMENT 'comment for column'],
+    ...
+) ENGINE = engine
+  COMMENT 'comment for table'
+```
 
 
 #### Drop
 
+```
+...
+```
 
 #### Alter
 
 
+```
+...
+```
 #### Change field order
 
+```
+...
+```
 
 ### Keys
 
+```
+...
+```
 
 ### Users and Privileges
+
+```
+...
+```
