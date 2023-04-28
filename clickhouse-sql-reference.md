@@ -5,58 +5,81 @@ layout: 2017/sheet
 category: Databases
 ---
 
-## clickhouse 支持的client类型
-ClickHouse 本身提供两种客户端接口，分别基于 HTTP 和 TCP 协议。
+{: .-one-column}
+## 数据库操作SQL
 
-## **基于 HTTP 协议**
-主要用来支持轻量级的简单操作，方便跨平台和编程语言。EMR 集群内的 clickhouse-server 进程会启动8123的 HTTP 服务，可以发送简单的 GET 请求检查服务是否正常。
+ClickHouse 目前支持 5 种类型的数据库引擎, 其中`Atomic`为默认数据库引擎：
 
+- `Atomic`: 支持非阻塞的DROP TABLE和RENAME TABLE查询和原子的EXCHANGE TABLES t1 AND t2查询。默认情况下使用Atomic数据库引擎。
+- `MySQL`：MySQL引擎用于将远程的MySQL服务器中的表映射到ClickHouse中，并允许您对表进行INSERT和SELECT查询，以方便您在ClickHouse与MySQL之间进行数据交换。
+- `MaterializedMySQL`: 创建ClickHouse数据库，包含MySQL中所有的表，以及这些表中的所有数据。
+- `Lazy`：日志引擎，此类数据库下只能使用 Log 系列的表引擎。
+- `PostgreSQL`: 允许连接到远程PostgreSQL服务。支持读写操作(SELECT和INSERT查询)，以在ClickHouse和PostgreSQL之间交换数据,和mysql引擎类似。
+- `MaterializedPostgreSQL`: 使用PostgreSQL数据库表的初始数据转储创建ClickHouse数据库，并启动复制过程，即执行后台作业，以便在远程PostgreSQL数据库中的PostgreSQL数据库表上发生新更改时应用这些更改。
+- `Replicated`: 该引擎基于Atomic引擎。它支持通过将DDL日志写入ZooKeeper并在给定数据库的所有副本上执行的元数据复制。
+- `SQLite`: 允许连接到SQLite数据库，并支持ClickHouse和SQLite交换数据， 执行INSERT和SELECT查询。
 
+参照官方文档 [Database Engines](https://clickhouse.com/docs/en/engines/database-engines)了解更多。
 
-```yaml
-$ curl http://127.0.0.1:8123
-Ok.
+### Create / Open / Delete Database
+
+#### CREATE DATABASE
+
+```sql
+CREATE DATABASE [IF NOT EXISTS] db_name [ON CLUSTER cluster] [ENGINE = engine(...)] [COMMENT 'Comment']
 ```
 
-还可以通过 query 参数发送请求，例如查询 testdb 中 account 表的数据。
+example: 
 
 ```
-$ wget -q -O- 'http://127.0.0.1:8123/?query=SELECT * from testdb.account'
-1       GHua    WuHan Hubei     1990
-2       SLiu    ShenZhen Guangzhou      1991
-3       JPong   Chengdu Sichuan 1992
+CREATE DATABASE DatabaseName;
+CREATE DATABASE IF NOT EXISTS db_name[ENGINE=engine];
 ```
 
-其他用法可以参照官方文档 [HTTP Interface](https://clickhouse.com/docs/en/interfaces/http)。
-
-## 基于 TCP 协议
-主要在 clickhouse-client 端使用，在 EMR 集群内输入 clickhouse-client 命令，会输出版本信息、连接到的 clickhouse-server 地址、默认使用的数据库等。可以通过 quit、exit 或 q 等退出使用。
+#### DELETE DATABASE
 
 ```
-$ clickhouse-client
-ClickHouse client version 19.16.12.49.
-Connecting to localhost:9000 as user default.
-Connected to ClickHouse server version 19.16.12 revision 54427.
+DROP DATABASE [IF EXISTS] db [ON CLUSTER cluster] [SYNC]
 ```
 
-clickhouse-client 使用的主要参数有以下几个：
-
-- -C --config-file：指定客户端使用的配置文件。
-- -h --host：指定 clickhouse-server 的 IP 地址。
-- --port：指定 clickhouse-server 的端口地址。
-- -u --user 用户名。
-- --password 密码。
-- -d --database：数据库名称。
-- -V --version：查看客户端版本。
-- -E --vertical：查询结果按照垂直格式显示。
-- -q --query：非交互模式下传入的SQL语句。
-- -t --time：非交互模式下显示执行时间。
-- --log-level：客户端日志级别。
-- --send_logs_level：指定服务端返回日志数据的级别。
-- --server_logs_file：指定服务端日志保存路径。
-
-如指定连接的 clickhouse host、端口、用户、密码：
+example:
 
 ```
-clickhouse-client --host 127.0.0.1 --port 9000 --user yulin --password yu2333
+DROP DATABASE DatabaseName;
 ```
+
+#### SHOW DATABASE
+
+查看创建数据库语句
+```
+SHOW CREATE DATABASE <database>
+```
+
+查看数据库
+```
+SHOW DATABASES;
+```
+
+{: .-one-column}
+## 数据表操作
+
+云数据库ClickHouse支持的表引擎分为MergeTree、Log、Integrations和Special四个系列。本文主要对这四类表引擎进行概要介绍，并通过示例介绍常用表引擎的功能。
+
+### Create / Delete / Modify Table
+
+#### Create
+
+
+#### Drop
+
+
+#### Alter
+
+
+#### Change field order
+
+
+### Keys
+
+
+### Users and Privileges
