@@ -1,11 +1,10 @@
 ---
-title: ClickHouse-client
+title: ClickHouse SQL Reference
 updated: 2023-04-28
 layout: 2017/sheet
 category: Databases
 ---
 
-{: .-one-column}
 ## clickhouse 支持的client类型
 ClickHouse 本身提供两种客户端接口，分别基于 HTTP 和 TCP 协议。
 
@@ -56,23 +55,8 @@ clickhouse-client 使用的主要参数有以下几个：
 - --send_logs_level：指定服务端返回日志数据的级别。
 - --server_logs_file：指定服务端日志保存路径。
 
-参照官方文档 [Command-line Client](https://clickhouse.com/docs/en/interfaces/cli)了解更多。
-
-
-### 交互式使用
-
 如指定连接的 clickhouse host、端口、用户、密码：
 
 ```
-clickhouse-client -h IP地址 --port TCP端口 -u 用户名 --password 密码
+clickhouse-client --host 127.0.0.1 --port 9000 --user yulin --password yu2333
 ```
-
-
-### 非交互式使用
-```
-clickhouse-client -h IP地址 --port TCP端口 -u 用户名 --password 密码 --database=test --query "insert into ..." 
-```
-
-
-
-
