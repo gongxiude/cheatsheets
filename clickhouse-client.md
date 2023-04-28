@@ -5,12 +5,12 @@ layout: 2017/sheet
 category: Databases
 ---
 
-## clickhouse 支持的client类型
 {: .-one-column}
+## clickhouse 支持的client类型
 ClickHouse 本身提供两种客户端接口，分别基于 HTTP 和 TCP 协议。
 
-### **基于 HTTP 协议**
 {: .-two-column}
+## **基于 HTTP 协议**
 主要用来支持轻量级的简单操作，方便跨平台和编程语言。EMR 集群内的 clickhouse-server 进程会启动8123的 HTTP 服务，可以发送简单的 GET 请求检查服务是否正常。
 
 
@@ -31,9 +31,8 @@ $ wget -q -O- 'http://127.0.0.1:8123/?query=SELECT * from testdb.account'
 
 其他用法可以参照官方文档 [HTTP Interface](https://clickhouse.com/docs/en/interfaces/http)。
 
-
-### 基于 TCP 协议
 {: .-two-column}
+## 基于 TCP 协议
 主要在 clickhouse-client 端使用，在 EMR 集群内输入 clickhouse-client 命令，会输出版本信息、连接到的 clickhouse-server 地址、默认使用的数据库等。可以通过 quit、exit 或 q 等退出使用。
 
 ```
@@ -58,3 +57,9 @@ clickhouse-client 使用的主要参数有以下几个：
 - --log-level：客户端日志级别。
 - --send_logs_level：指定服务端返回日志数据的级别。
 - --server_logs_file：指定服务端日志保存路径。
+
+如指定连接的 clickhouse host、端口、用户、密码：
+
+```
+clickhouse-client --host 127.0.0.1 --port 9000 --user yulin --password yu2333
+```
