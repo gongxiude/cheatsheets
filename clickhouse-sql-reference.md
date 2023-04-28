@@ -82,9 +82,9 @@ ClickHouse 主要的表引擎分为 3 类别：
 | `Engine for Integration`  | [ODBC](https://clickhouse.com/docs/en/engines/table-engines/integrations/odbc) [JDBC](https://clickhouse.com/docs/en/engines/table-engines/integrations/jdbc) [MySQL](https://clickhouse.com/docs/en/engines/table-engines/integrations/mysql) [MongoDB](https://clickhouse.com/docs/en/engines/table-engines/integrations/mongodb) [HDFS](https://clickhouse.com/docs/en/engines/table-engines/integrations/hdfs) [S3](https://clickhouse.com/docs/en/engines/table-engines/integrations/s3) [Kafka](https://clickhouse.com/docs/en/engines/table-engines/integrations/kafka) [EmbeddedRocksDB](https://clickhouse.com/docs/en/engines/table-engines/integrations/embedded-rocksdb) [RabbitMQ](https://clickhouse.com/docs/en/engines/table-engines/integrations/rabbitmq) [PostgreSQL](https://clickhouse.com/docs/en/engines/table-engines/integrations/postgresql) |
 | `Special Engines Fmaily`  | [Distributed](https://clickhouse.com/docs/en/engines/table-engines/special/distributed#distributed) [MaterializedView](https://clickhouse.com/docs/en/engines/table-engines/special/materializedview#materializedview) [Dictionary](https://clickhouse.com/docs/en/engines/table-engines/special/dictionary#dictionary) [Merge](https://clickhouse.com/docs/en/engines/table-engines/special/merge#merge) [File](https://clickhouse.com/docs/en/engines/table-engines/special/file#file) [Null](https://clickhouse.com/docs/en/engines/table-engines/special/null#null) [Set](https://clickhouse.com/docs/en/engines/table-engines/special/set#set) [Join](https://clickhouse.com/docs/en/engines/table-engines/special/join#join) [URL](https://clickhouse.com/docs/en/engines/table-engines/special/url#table_engines-url) [View](https://clickhouse.com/docs/en/engines/table-engines/special/view#table_engines-view) [Memory](https://clickhouse.com/docs/en/engines/table-engines/special/memory#memory) [Buffer](https://clickhouse.com/docs/en/engines/table-engines/special/buffer#buffer) [KeeperMap](https://clickhouse.com/docs/en/engines/table-engines/special/keeper-map) |
 
-### Create / Delete / Modify Table
+### Create Table
 
-#### Create Table
+#### 常规定义方式
 
 ```
 CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
@@ -96,33 +96,70 @@ CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
   COMMENT 'comment for table'
 ```
 
-
-#### Drop
-
-```
-...
-```
-
-#### Alter
-
+#### 复制其他表结构
 
 ```
-...
-```
-#### Change field order
+-- 语法
+CREATE TABLE [IF NOT EXISTS] [db_name1.]table_name AS [db_name2.]table_name2 [ENGINE = engine]
 
-```
-...
-```
-
-### Keys
-
-```
-...
+-- 示例
+-- 创建新的数据库
+CREATE DATABASE IF NOT EXISTS new_db;
+-- 将 default.hits_v1 的结构复制到 new_db.hits_v1
+CREATE TABLE IF NOT EXISTS new_db.hits_v1 AS default.hits_v1 ENGINE = TinyLog;
 ```
 
-### Users and Privileges
+
+#### 通过 SELECT 子句形式创建
+
+在这种方式下，不仅会根据 SELECT 子句建立相应的表结构，同时还会将 SELECT 子句查询的数据顺带写入
 
 ```
-...
+-- 语法
+CREATE TABLE [IF NOT EXISTS] [db_name1.]table_name ENGINE = engine AS SELECT ...
+
+-- 示例
+CREATE TABLE IF NOT EXISTS hits_v1_1 ENGINE = Memory AS SELECT * from hits_v1;
+```
+
+
+### 临时表创建
+
+
+#### 常规定义方式
+
+```
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr1] [compression_codec] [TTL expr1] [COMMENT 'comment for column'],
+    name2 [type2] [NULL|NOT NULL] [DEFAULT|MATERIALIZED|EPHEMERAL|ALIAS expr2] [compression_codec] [TTL expr2] [COMMENT 'comment for column'],
+    ...
+) ENGINE = engine
+  COMMENT 'comment for table'
+```
+
+#### 复制其他表结构
+
+```
+-- 语法
+CREATE TABLE [IF NOT EXISTS] [db_name1.]table_name AS [db_name2.]table_name2 [ENGINE = engine]
+
+-- 示例
+-- 创建新的数据库
+CREATE DATABASE IF NOT EXISTS new_db;
+-- 将 default.hits_v1 的结构复制到 new_db.hits_v1
+CREATE TABLE IF NOT EXISTS new_db.hits_v1 AS default.hits_v1 ENGINE = TinyLog;
+```
+
+
+#### 通过 SELECT 子句形式创建
+
+在这种方式下，不仅会根据 SELECT 子句建立相应的表结构，同时还会将 SELECT 子句查询的数据顺带写入
+
+```
+-- 语法
+CREATE TABLE [IF NOT EXISTS] [db_name1.]table_name ENGINE = engine AS SELECT ...
+
+-- 示例
+CREATE TABLE IF NOT EXISTS hits_v1_1 ENGINE = Memory AS SELECT * from hits_v1;
 ```
