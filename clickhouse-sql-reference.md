@@ -21,6 +21,7 @@ ClickHouse 目前支持 5 种类型的数据库引擎, 其中`Atomic`为默认�
 
 参照官方文档 [Database Engines](https://clickhouse.com/docs/en/engines/database-engines)了解更多。
 
+{: .-two-column}
 ### Create / Open / Delete Database
 
 #### CREATE DATABASE
@@ -65,6 +66,7 @@ SHOW DATABASES;
 
 云数据库ClickHouse支持的表引擎分为MergeTree、Log、Integrations和Special四个系列。本文主要对这四类表引擎进行概要介绍，并通过示例介绍常用表引擎的功能。
 
+{: .-two-column}
 ### Create / Delete / Modify Table
 
 #### Create
